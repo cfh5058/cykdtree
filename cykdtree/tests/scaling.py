@@ -78,9 +78,10 @@ def time_run(npart, nproc, ndim, nrep=1, periodic=False, leafsize=10,
     return np.mean(times), np.std(times)
 
 
-def strong_scaling(npart=1e6, nrep=1, periodic=False,
-                   leafsize=10, overwrite=True,
-                   suppress_final_output=False):
+def strong_scaling(npart=1e6, nrep=1, periodic=False, leafsize=10, 
+                   nproc_list = [1, 2, 4, 8], #, 16],
+                   ndim_list = [2, 3, 4],
+                   overwrite=True, suppress_final_output=False):
     r"""Plot the scaling with number of processors for a particular function.
 
     Args:
@@ -91,11 +92,18 @@ def strong_scaling(npart=1e6, nrep=1, periodic=False,
             periodic. Defaults to False.
         leafsize (int, optional): The maximum number of points that should be
             in any leaf in the tree. Defaults to 10.
+        nproc_list (list, optional): List of numbers of processors to plot
+            scaling for. Defaults to [1, 2, 4, 8].
+        ndim_list (list, optional): List of numbers of dimensions to plot
+            scaling for. Defaults to [2, 3, 4].
         overwrite (bool, optional): If True, the existing file for this
             set of input parameters if overwritten. Defaults to False.
         suppress_final_output (bool, optional): If True, the final output 
             from spawned MPI processes is suppressed. This is mainly for
             timing purposes. Defaults to False.
+
+    Returns:
+        str: The full path to the file where the resulting plot is saved.
 
     """
     import matplotlib.pyplot as plt
@@ -108,8 +116,6 @@ def strong_scaling(npart=1e6, nrep=1, periodic=False,
         outstr = "_noout"
     fname_plot = 'plot_strong_scaling_nproc_{}part{}_{}leafsize{}.png'.format(
         npart, perstr, leafsize, outstr)
-    nproc_list = [1, 2, 4, 8]#, 16]
-    ndim_list = [2, 3, 4]
     clr_list = ['b', 'r', 'g', 'm']
     times = np.empty((len(nproc_list), len(ndim_list), 2), 'float')
     for j, nproc in enumerate(nproc_list):
@@ -130,9 +136,12 @@ def strong_scaling(npart=1e6, nrep=1, periodic=False,
     axs.legend()
     fig.savefig(fname_plot)
     print('    '+fname_plot)
+    return fname_plot
 
 
 def weak_scaling(npart=1e4, nrep=1, periodic=False, leafsize=10,
+                 nproc_list = [1, 2, 4, 8], #, 16],
+                 ndim_list = [2, 3, 4],
                  overwrite=True, suppress_final_output=False):
     r"""Plot the scaling with number of processors with a constant number of
     particles per processor for a particular function.
@@ -146,11 +155,18 @@ def weak_scaling(npart=1e4, nrep=1, periodic=False, leafsize=10,
             periodic. Defaults to False.
         leafsize (int, optional): The maximum number of points that should be
             in any leaf in the tree. Defaults to 10.
+        nproc_list (list, optional): List of numbers of processors to plot
+            scaling for. Defaults to [1, 2, 4, 8].
+        ndim_list (list, optional): List of numbers of dimensions to plot
+            scaling for. Defaults to [2, 3, 4].
         overwrite (bool, optional): If True, the existing file for this
             set of input parameters if overwritten. Defaults to False.
         suppress_final_output (bool, optional): If True, the final output 
             from spawned MPI processes is suppressed. This is mainly for
             timing purposes. Defaults to False.
+
+    Returns:
+        str: The full path to the file where the resulting plot is saved.
 
     """
     import matplotlib.pyplot as plt
@@ -163,8 +179,6 @@ def weak_scaling(npart=1e4, nrep=1, periodic=False, leafsize=10,
         outstr = "_noout"
     fname_plot = 'plot_weak_scaling_nproc_{}part{}_{}leafsize{}.png'.format(
         npart, perstr, leafsize, outstr)
-    nproc_list = [1, 2, 4, 8, 16]
-    ndim_list = [2, 3]
     clr_list = ['b', 'r', 'g', 'm']
     times = np.empty((len(nproc_list), len(ndim_list), 2), 'float')
     for j, nproc in enumerate(nproc_list):
@@ -184,3 +198,4 @@ def weak_scaling(npart=1e4, nrep=1, periodic=False, leafsize=10,
     axs.legend()
     fig.savefig(fname_plot)
     print('    '+fname_plot)
+    return fname_plot
