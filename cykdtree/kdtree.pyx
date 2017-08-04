@@ -346,6 +346,9 @@ cdef class PyKDTree:
         for i in range(self.ndim):
             out[i] = view[i]
         return out
+    @property
+    def idx(self):
+        return np.asarray(self._idx)
 
     def leaf_idx(self, np.uint32_t leafid):
         r"""Get array of indices for points in a leaf.
@@ -357,20 +360,9 @@ cdef class PyKDTree:
             np.ndarray of np.uint64_t: Indices of points belonging to leaf.
 
         """
-        cdef np.ndarray[np.uint64_t] out = self._idx[self.leaves[leafid].slice]
+        cdef np.ndarray[np.uint64_t] out
+        out = np.asarray(self._idx[self.leaves[leafid].slice])
         return out
-
-    cdef np.ndarray[np.uint32_t, ndim=1] _get_neighbor_ids(self, np.ndarray[double, ndim=1] pos):
-        cdef np.uint32_t i
-        cdef vector[uint32_t] vout = self._tree.get_neighbor_ids(&pos[0]);
-        cdef np.ndarray[np.uint32_t, ndim=1] out = np.empty(vout.size(), 'uint32')
-        for i in xrange(vout.size()):
-            out[i] = vout[i]
-        return out
-
-    @property
-    def idx(self):
-        return np.asarray(self._idx)
 
     def get_neighbor_ids(self, np.ndarray[double, ndim=1] pos):
         r"""Return the IDs of leaves containing & neighboring a given position.
@@ -386,6 +378,37 @@ cdef class PyKDTree:
 
         """
         return self._get_neighbor_ids(pos)
+
+    cdef np.ndarray[np.uint32_t, ndim=1] _get_neighbor_ids(self, np.ndarray[double, ndim=1] pos):
+        cdef np.uint32_t i
+        cdef vector[uint32_t] vout = self._tree.get_neighbor_ids(&pos[0]);
+        cdef np.ndarray[np.uint32_t, ndim=1] out = np.empty(vout.size(), 'uint32')
+        for i in xrange(vout.size()):
+            out[i] = vout[i]
+        return out
+
+    def get_neighbor_ids_3(self, np.ndarray[double, ndim=1] pos):
+        r"""Return the IDs of leaves containing & neighboring a given 3D
+        position.
+
+        Args:
+            pos (np.ndarray of double): Coordinates.
+
+        Returns:
+            np.ndarray of uint32: Leaves containing/neighboring `pos`.
+
+        Raises:
+            ValueError: If pos is not contained withing the KDTree.
+            ValueError: If tree is not 3D.
+
+        """
+        if self.ndim != 3:
+            raise ValueError("Tree must be 3D for this to be valid.")
+        cdef np.float64_t cpos[3]
+        cdef np.uint32_t i
+        for i in xrange(3):
+            cpos[i] = pos[i]
+        return self._get_neighbor_ids_3(cpos)
 
     cdef np.ndarray[np.uint32_t, ndim=1] _get_neighbor_ids_3(self, np.float64_t pos[3]):
         cdef np.uint32_t i

@@ -20,6 +20,24 @@ def test_make_tree(npts=100, ndim=2):
     cykdtree.make_tree(pts, leafsize=ls, nproc=2)
 
 
+def test_PyNode_properties():
+    pts, le, re, ls = make_points(100, 2)
+    T = cykdtree.PyKDTree(pts, le, re, leafsize=ls)
+    n = T.leaves[0]
+    prop_list = ['periodic_left', 'periodic_right',
+                 'left_edge', 'right_edge', 'domain_width',
+                 'slice', 'neighbors']
+    for p in prop_list:
+        print(p)
+        getattr(n, p)
+    
+
+def test_PyNode_repr():
+    pts, le, re, ls = make_points(100, 2)
+    T = cykdtree.PyKDTree(pts, le, re, leafsize=ls)
+    print(T.leaves[0].__repr__())
+
+
 @parametrize(npts=100, ndim=(2, 3), periodic=(False, True), 
              use_sliding_midpoint=(False, True))
 def test_PyKDTree(npts=100, ndim=2, periodic=False, use_sliding_midpoint=False):
@@ -32,6 +50,30 @@ def test_PyKDTree_errors():
     pts, le, re, ls = make_points(100, 2)
     assert_raises(ValueError, cykdtree.PyKDTree, pts, le, re,
                   leafsize=1)
+
+
+def test_PyKDTree_defaults():
+    cykdtree.PyKDTree()
+    pts, le, re, ls = make_points(10, 2)
+    cykdtree.PyKDTree(pts, leafsize=ls)
+    cykdtree.PyKDTree(pts, leafsize=ls, periodic=np.ones(2, 'bool'))
+
+
+def test_PyKDTree_properties():
+    pts, le, re, ls = make_points(100, 2)
+    T = cykdtree.PyKDTree(pts, le, re, leafsize=ls)
+    prop_list = ['periodic', 'idx',
+                 'left_edge', 'right_edge', 'domain_width']
+    for p in prop_list:
+        print(p)
+        getattr(T, p)
+    
+
+@parametrize(strict_idx=(False, True))
+def test_assert_equal(strict_idx=False):
+    pts, le, re, ls = make_points(100, 2)
+    T = cykdtree.PyKDTree(pts, le, re, leafsize=ls)
+    T.assert_equal(T, strict_idx=strict_idx)
 
 
 @parametrize(npts=100, ndim=(2, 3), periodic=(False, True))
@@ -83,6 +125,21 @@ def test_neighbors(periodic=False):
             raise
 
 
+def test_leaf_idx():
+    pts, le, re, ls = make_points(10, 2)
+    tree = cykdtree.PyKDTree(pts, leafsize=ls)
+    tree.leaf_idx(0)
+
+
+def test_get_neighbor_ids_3(npts=100):
+    pts, le, re, ls = make_points(npts, 2)
+    tree = cykdtree.PyKDTree(pts, le, re, leafsize=ls)
+    assert_raises(ValueError, tree.get_neighbor_ids_3, le)
+    pts, le, re, ls = make_points(npts, 3)
+    tree = cykdtree.PyKDTree(pts, le, re, leafsize=ls)
+    tree.get_neighbor_ids_3(le)
+
+
 @parametrize(npts=100, ndim=(2,3), periodic=(False, True))
 def test_get_neighbor_ids(npts=100, ndim=2, periodic=False):
     pts, le, re, ls = make_points(npts, ndim)
@@ -92,6 +149,12 @@ def test_get_neighbor_ids(npts=100, ndim=2, periodic=False):
         pos_list.append(re)
     for pos in pos_list:
         tree.get_neighbor_ids(pos)
+
+
+def test_consolidate_edges():
+    pts, le, re, ls = make_points(10, 2)
+    tree = cykdtree.PyKDTree(pts, leafsize=ls)
+    tree.consolidate_edges()
 
 
 def time_tree_construction(Ntime, LStime, ndim=2):
