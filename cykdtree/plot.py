@@ -85,7 +85,7 @@ def _plot2D_root(seg, pts=None, txt=None, plotfile=None, point_kw={}, box_kw={},
     # Save
     if plotfile is not None:
         plt.savefig(plotfile, **save_kw)
-    else:
+    else: # pragma: no cover
         plt.show()
 
     # Return axes
@@ -199,5 +199,5 @@ def plot2D_parallel(tree, pts=None, label_boxes=False, label_procs=False,
     # Plot
     if rank == 0:
         return _plot2D_root(all_seg, pts=all_pts, txt=all_txt, **kwargs)
-    else:
+    else: # pragma: no cover
         return None
