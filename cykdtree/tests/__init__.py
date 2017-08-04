@@ -3,7 +3,6 @@ import cProfile
 import pstats
 import time
 import signal
-from subprocess import Popen, PIPE
 from nose.tools import istest, nottest, assert_raises
 try:
     from mpi4py import MPI
@@ -11,7 +10,6 @@ except ImportError:
     MPI=None
 import numpy as np
 import itertools
-import sys
 import os
 
 
@@ -58,83 +56,6 @@ def test_assert_less_equal():
     assert_less_equal(x, y)
     assert_raises(AssertionError, assert_less_equal, y, x)
     assert_raises(AssertionError, assert_less_equal, x, np.ones(3))
-
-
-def function_call_lines(func, args, kwargs, with_coverage=False):
-    r"""Get a list of lines required to run a function.
-
-    Args:
-        func (obj): Function object that should be run.
-        args (list): List of function arguments.
-        kwargs (dict): Dictionary of function keyword arguments.
-        with_coverage (bool, optional): If True, lines will be added that
-            enable coverage. Defaults to False.
-
-    Returns:
-        list: A list of strings containing the necessary lines to
-            run the function.
-
-    """
-    cmds = []
-    # Create string with arguments & kwargs
-    args_str = ""
-    for a in args:
-        args_str += str(a)+","
-    for k, v in kwargs.items():
-        args_str += k+"="+str(v)+","
-    if args_str.endswith(","):
-        args_str = args_str[:-1]
-    # Coverage setup
-    if with_coverage:
-        cmds += ["from coverage import Coverage",
-                 "cov = Coverage(auto_data=True)",
-                 "cov.start()"]
-    # Commands to run function
-    cmds += ["from %s import %s" % (func.__module__, func.__name__),
-             "%s(%s)" % (func.__name__, args_str)]
-    # Coverage teardown
-    if with_coverage:
-        cmds += ["cov.stop()"]
-    return cmds
-
-
-def call_subprocess(np, func, args, kwargs, with_coverage=False):
-    r"""Run a function call in parallel using mpirun.
-
-    Args:
-        np (int): Number of processes to run on.
-        func (obj): Function object that should be run.
-        args (list): List of function arguments.
-        kwargs (dict): Dictionary of function keyword arguments.
-        with_coverage (bool, optional): If True, coverage data for the
-            executed code will be added to .coverage. Defaults to False.
-
-    Returns:
-        str: Output from the executed code.
-
-    Raises:
-        Exception: If there is an error on the spawned MPI process.
-
-    """
-    func_cmds = function_call_lines(func, args, kwargs,
-                                    with_coverage=with_coverage)
-    cmd = ["mpirun", "-n", str(np), sys.executable, "-c",
-           "'%s'" % (";".join(func_cmds))]
-    cmd = ' '.join(cmd)
-    print('Running the following command:\n%s' % cmd)
-    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
-    output, err = p.communicate()
-    exit_code = p.returncode
-    print(output.decode('utf-8'))
-    if exit_code != 0:
-        print(err.decode('utf-8'))
-        raise Exception("Error on spawned process. See output.")
-        # return None
-    return output.decode('utf-8')
-
-
-def test_call_subprocess():
-    call_subprocess(1, assert_less_equal, [1, 5], {}, with_coverage=True)
 
 
 def iter_dict(dicts):
@@ -189,64 +110,6 @@ def parametrize(**pargs):
 
         return func_param
 
-    return dec
-
-
-def MPITest(Nproc, **pargs):
-    r"""Decorator generator for tests that must be run with MPI.
-
-    Args:
-        Nproc (int, list, tuple): Number of processors or list/tuple of
-            process counts that the test should be run with.
-        \*\*pargs: Additional parameter values that the test should be
-            parametrized by.
-
-    Returns:
-        func: Decorator function that calls the pass function with MPI.
-
-    """
-    if MPI is None:
-        return lambda x: None
-
-    if not isinstance(Nproc, (tuple, list)):
-        Nproc = (Nproc,)
-    max_size = max(Nproc)
-
-    def dec(func):
-        comm = MPI.COMM_WORLD
-        size = comm.Get_size()
-        rank = comm.Get_rank()
-
-        # print(size, Nproc, size in Nproc)
-
-        # First do setup
-        if (size not in Nproc):
-            @parametrize(Nproc=Nproc)
-            def wrapped(*args, **kwargs):
-                s = kwargs.pop('Nproc', 1)
-                call_subprocess(s, func, args, kwargs, with_coverage=True)
-
-            wrapped.__name__ = func.__name__
-            return wrapped
-
-        # Then just call the function
-        else:
-            @parametrize(**pargs)
-            def try_func(*args, **kwargs):
-                error_flag = np.array([0], 'int')
-                try:
-                    out = func(*args, **kwargs)
-                except Exception as error:
-                    import traceback
-                    print(traceback.format_exc())
-                    error_flag[0] = 1
-                flag_count = np.zeros(1, 'int')
-                comm.Allreduce(error_flag, flag_count)
-                if flag_count[0] > 0:
-                    raise Exception("Process %d: There were errors on %d processes." %
-                                    (rank, flag_count[0]))
-                return out
-            return try_func
     return dec
 
 
@@ -499,7 +362,7 @@ from cykdtree.tests import test_parallel_kdtree
 from cykdtree.tests import scaling
 from cykdtree.tests import test_scaling
 
-__all__ = ["MPITest", "test_utils", "test_kdtree",
+__all__ = ["test_utils", "test_kdtree",
            "test_parallel_kdtree", "test_plot", "make_points",
            "make_points_neighbors", "run_test", "scaling",
            "test_scaling"]
