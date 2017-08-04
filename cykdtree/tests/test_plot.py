@@ -20,16 +20,14 @@ def test_plot2D_serial():
 
 
 def test_plot2D_parallel():
-    if PyParallelKDTree is None:
-        return
-
-    fname_test = "test_plot2D_parallel.png"
-    pts, le, re, ls = make_points(100, 2)
-    tree = PyParallelKDTree(pts, le, re, leafsize=ls)
-    axs = plot2D_parallel(tree, pts, title="Parallel Test", plotfile=fname_test,
-                          label_boxes=True, label_procs=True)
-    os.remove(fname_test)
-    # plot2D_parallel(tree, pts, axs=axs)
-    del axs
+    if PyParallelKDTree is not None:
+        fname_test = "test_plot2D_parallel.png"
+        pts, le, re, ls = make_points(100, 2)
+        tree = PyParallelKDTree(pts, le, re, leafsize=ls)
+        axs = plot2D_parallel(tree, pts, title="Parallel Test", plotfile=fname_test,
+                              label_boxes=True, label_procs=True)
+        os.remove(fname_test)
+        # plot2D_parallel(tree, pts, axs=axs)
+        del axs
 
 
