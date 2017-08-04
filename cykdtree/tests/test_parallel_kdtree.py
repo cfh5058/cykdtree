@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import time
 from nose.tools import istest, nottest, assert_raises, assert_equal
 try:
@@ -6,19 +7,27 @@ try:
 except ImportError:
     MPI = None
 import cykdtree
-from cykdtree.tests import MPITest, parametrize, make_points, make_points_neighbors
+from cykdtree.tests import parametrize, make_points, make_points_neighbors
+from cykdtree.tests.test_parallel_utils import MPITest
 Nproc = (3,4,5)
 
 
-@parametrize(nproc=Nproc, periodic=(False, True))
-def test_spawn_parallel(nproc=1, npts=20, ndim=2, periodic=False,
+def test_spawn_parallel(nproc=3, npts=20, ndim=2, periodic=False,
                         leafsize=3):
     if MPI is None:
         return
     pts, le, re, ls = make_points(npts, ndim, leafsize=leafsize)
     Tseri = cykdtree.spawn_parallel(pts, nproc, leafsize=leafsize,
                                     left_edge=le, right_edge=re,
-                                    periodic=periodic)
+                                    periodic=periodic, with_coverage=True,
+                                    profile=True)
+    profile = 'temp_prof.txt'
+    Tseri = cykdtree.spawn_parallel(pts, nproc, leafsize=leafsize,
+                                    left_edge=le, right_edge=re,
+                                    periodic=periodic, with_coverage=True,
+                                    profile=profile)
+    assert(os.path.isfile(profile))
+    os.remove(profile)
 
 
 @MPITest(Nproc, periodic=(False, True), ndim=(2,3),
@@ -30,11 +39,41 @@ def test_PyParallelKDTree(periodic=False, ndim=2, use_sliding_midpoint=False):
                                       use_sliding_midpoint=use_sliding_midpoint)
 
 
-@MPITest(Nproc, periodic=(False, True), ndim=(2,3))
-def test_PyParallelKDTree_errors(periodic=False, ndim=2):
+@MPITest(3)
+def test_PyParallelKDTree_errors(ndim=2):
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
     pts, le, re, ls = make_points(20, ndim, leafsize=3)
     assert_raises(ValueError, cykdtree.PyParallelKDTree, pts,
                   le, re, leafsize=1)
+    err_rank = 1
+    if rank == err_rank:
+        pts = np.ones((5, ndim), 'float64')
+        assert_raises(AssertionError, cykdtree.PyParallelKDTree, pts,
+                      le, re, leafsize=ls)
+    else:
+        assert_raises(Exception, cykdtree.PyParallelKDTree, pts,
+                      le, re, leafsize=ls)
+
+
+@MPITest(3)
+def test_PyParallelKDTree_defaults(ndim=2):
+    pts, le, re, ls = make_points(20, ndim, leafsize=3)
+    cykdtree.PyParallelKDTree(pts, leafsize=ls)
+    cykdtree.PyParallelKDTree(pts, leafsize=ls, periodic=np.ones(ndim, 'bool'))
+
+
+@MPITest(3)
+def test_PyParallelKDTree_properties():
+    pts, le, re, ls = make_points(100, 2)
+    T = cykdtree.PyParallelKDTree(pts, le, re, leafsize=ls)
+    prop_list = ['local_npts', 'inter_npts', 'idx', 'inter_idx',
+                 'left_edge', 'right_edge', 'domain_width',
+                 'periodic_left', 'periodic_right']
+    for p in prop_list:
+        print(p)
+        getattr(T, p)
 
 
 @MPITest(Nproc, periodic=(False, True), ndim=(2,3))
@@ -93,7 +132,7 @@ def test_neighbors(periodic = False):
         periodic=periodic)
     tree = cykdtree.PyParallelKDTree(pts, le, re, leafsize=ls,
                                      periodic=periodic)
-    if True:
+    if False:
         from cykdtree.plot import plot2D_parallel
         plotfile = 'test_neighbors.png'
         plot2D_parallel(tree, label_boxes=True, label_procs=True,
@@ -192,3 +231,10 @@ def time_neighbor_search(Ntime, LStime, ndim=2):
     t1 = time.time()
     print("{} {}D points, leafsize {}: took {} s".format(Ntime, ndim, LStime, t1-t0))
 
+
+def test_time_tree_construction():
+    time_tree_construction(100, 10)
+
+
+def test_time_neighbor_search():
+    time_neighbor_search(100, 10)

@@ -12,6 +12,9 @@ omit =
 
 [report]
 sort = Cover
+ignore_errors = True
 exclude_lines =
     # Have to re-enable the standard pragma
     pragma: no cover
+    # pragma: only cover Python 2
+    # pragma: only cover Python 3

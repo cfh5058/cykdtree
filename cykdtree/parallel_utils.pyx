@@ -1,5 +1,7 @@
 import numpy as np
 cimport numpy as np
+import sys
+from subprocess import Popen, PIPE
 cimport cython
 from mpi4py import MPI
 from libc.stdlib cimport malloc, free
@@ -9,6 +11,88 @@ from cpython cimport bool as pybool
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 from libc.stdint cimport uint32_t, uint64_t, int64_t, int32_t
+
+
+def function_call_lines(func, args, kwargs, with_coverage=False):
+    r"""Get a list of lines required to run a function.
+
+    Args:
+        func (obj): Function object that should be run.
+        args (list): List of function arguments.
+        kwargs (dict): Dictionary of function keyword arguments.
+        with_coverage (bool, optional): If True, lines will be added that
+            enable coverage. Defaults to False.
+
+    Returns:
+        list: A list of strings containing the necessary lines to
+            run the function.
+
+    """
+    cmds = []
+    # Create string with arguments & kwargs
+    args_str = ""
+    for a in args:
+        if isinstance(a, str):
+            args_str += "\"%s\"" % a
+        else:
+            args_str += str(a)
+        args_str += ","
+    for k, v in kwargs.items():
+        args_str += k+"="
+        if isinstance(v, str):
+            args_str += "\"%s\"" % v
+        else:
+            args_str += str(v)
+        args_str += ","
+    if args_str.endswith(","):
+        args_str = args_str[:-1]
+    # Coverage setup
+    if with_coverage:
+        cmds += ["from coverage import Coverage",
+                 "cov = Coverage(auto_data=True)",
+                 "cov.start()"]
+    # Commands to run function
+    cmds += ["from %s import %s" % (func.__module__, func.__name__),
+             "%s(%s)" % (func.__name__, args_str)]
+    # Coverage teardown
+    if with_coverage:
+        cmds += ["cov.stop()"]
+    return cmds
+
+
+def call_subprocess(np, func, args, kwargs, with_coverage=False):
+    r"""Run a function call in parallel using mpirun.
+
+    Args:
+        np (int): Number of processes to run on.
+        func (obj): Function object that should be run.
+        args (list): List of function arguments.
+        kwargs (dict): Dictionary of function keyword arguments.
+        with_coverage (bool, optional): If True, coverage data for the
+            executed code will be added to .coverage. Defaults to False.
+
+    Returns:
+        str: Output from the executed code.
+
+    Raises:
+        Exception: If there is an error on the spawned MPI process.
+
+    """
+    func_cmd = ";".join(function_call_lines(func, args, kwargs,
+                                            with_coverage=with_coverage))
+    cmd = ["mpirun", "-n", str(np), sys.executable, "-c",
+           "'%s'" % func_cmd]
+    cmd = ' '.join(cmd)
+    print('Running the following command:\n%s' % cmd)
+    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
+    output, err = p.communicate()
+    exit_code = p.returncode
+    print(output.decode('utf-8'))
+    if exit_code != 0:
+        print(err.decode('utf-8'))
+        raise Exception("Error on spawned process. See output.")
+        # return None
+    return output.decode('utf-8')
 
 
 def py_parallel_distribute(np.ndarray[np.float64_t, ndim=2] pts0 = None):

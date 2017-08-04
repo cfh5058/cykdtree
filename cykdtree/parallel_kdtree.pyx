@@ -14,21 +14,23 @@ if PY_MAJOR_VERSION == 2:
     import cPickle as pickle
 else:
     import pickle
-
 from libc.stdlib cimport malloc, free
 from libcpp cimport bool as cbool
 from cpython cimport bool as pybool
-
 from libc.stdint cimport uint32_t, uint64_t, int32_t, int64_t
+from cykdtree.parallel_utils import call_subprocess
 
 
-def spawn_parallel(np.ndarray[np.float64_t, ndim=2] pts, int nproc, **kwargs):
+def spawn_parallel(np.ndarray[np.float64_t, ndim=2] pts, int nproc,
+                   with_coverage=False, **kwargs):
     r"""Spawn processes to construct a tree in parallel and then
     return the consolidated tree to the calling process.
 
     Args:
         pts (np.ndarray of float64): (n,m) Array of n mD points.
         nproc (int): The number of MPI processes that should be spawned.
+        with_coverage (bool, optional): If True, coverage data for the
+            executed code will be added to .coverage. Defaults to False.
         profile (str, optional): If set to a file path, cProfile timing
             statistics are saved to it. If set to True, the 25 most
             costly calls are printed. Defaults to False.
@@ -42,8 +44,6 @@ def spawn_parallel(np.ndarray[np.float64_t, ndim=2] pts, int nproc, **kwargs):
 
     Raises:
         AssertionError: If the input file cannot be created.
-        RuntimeError: If there is an error on one or more of the spawned
-            processes.
         AssertionError: If the output file does not exist.
 
     """
@@ -61,17 +61,9 @@ def spawn_parallel(np.ndarray[np.float64_t, ndim=2] pts, int nproc, **kwargs):
             pickle.dump(out, fd)
         assert(os.path.isfile(finput))
     # Spawn in parallel
-    cmd = ("mpirun -n %d python -c " +
-           "'from cykdtree import parallel_worker; " +
-           "parallel_worker(\"%s\", \"%s\")'") % (nproc, finput, foutput)
-    print('Running the following command:\n%s' % cmd)
-    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
-    output, err = p.communicate()
-    exit_code = p.returncode
-    print(output.decode('utf-8'))
-    if exit_code != 0:
-        print(err.decode('utf-8'))
-        raise RuntimeError("Error on spawned process. See output.")
+    out = call_subprocess(nproc, parallel_worker,
+                          [finput, foutput], {},
+                          with_coverage=with_coverage)
     # Read tree
     if not kwargs.get("suppress_final_output", False):
         assert(os.path.isfile(foutput))
@@ -317,30 +309,25 @@ cdef class PyParallelKDTree:
     def local_npts(self):
         cdef uint64_t out = self._ptree.local_npts
         return out
-
     @property
     def inter_npts(self):
         cdef uint64_t out = self._ptree.inter_npts
         return out
-
     # @property
     # def pts(self):
     #     cdef np.float64_t[:,:] view
     #     view = <np.float64_t[:self.local_npts,:self.ndim]> self._ptree.all_pts
     #     return np.asarray(view)
-
     @property
     def idx(self):
         cdef np.uint64_t[:] view
         view = <np.uint64_t[:self.local_npts]> self._ptree.all_idx
         return np.asarray(view)
-
     @property
     def inter_idx(self):
         cdef np.uint64_t[:] view
         view = <np.uint64_t[:self.inter_npts]> self._ptree.all_idx
         return np.asarray(view)
-
     @property
     def left_edge(self):
         cdef np.float64_t[:] view

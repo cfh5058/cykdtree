@@ -38,12 +38,10 @@ def test_PyNode_repr():
     print(T.leaves[0].__repr__())
 
 
-@parametrize(npts=100, ndim=(2, 3), periodic=(False, True), 
-             use_sliding_midpoint=(False, True))
-def test_PyKDTree(npts=100, ndim=2, periodic=False, use_sliding_midpoint=False):
-    pts, le, re, ls = make_points(npts, ndim)
-    cykdtree.PyKDTree(pts, le, re, leafsize=ls, periodic=periodic,
-                      use_sliding_midpoint=use_sliding_midpoint)
+@parametrize(npts=10, ndim=(2, 3), periodic=(False, True))
+def test_PyKDTree(npts=100, ndim=2, periodic=False):
+    pts, le, re, ls = make_points(npts, ndim, leafsize=3)
+    cykdtree.PyKDTree(pts, le, re, leafsize=ls, periodic=periodic)
 
 
 def test_PyKDTree_errors():
@@ -57,6 +55,8 @@ def test_PyKDTree_defaults():
     pts, le, re, ls = make_points(10, 2)
     cykdtree.PyKDTree(pts, leafsize=ls)
     cykdtree.PyKDTree(pts, leafsize=ls, periodic=np.ones(2, 'bool'))
+    cykdtree.PyKDTree(pts, nleaves=4)
+    cykdtree.PyKDTree(pts, leafsize=ls, use_sliding_midpoint=True)
 
 
 def test_PyKDTree_properties():

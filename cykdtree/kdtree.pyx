@@ -103,12 +103,10 @@ cdef class PyNode:
     def domain_width(self):
         cdef np.float64_t[:] view = <np.float64_t[:self.ndim]> self._domain_width
         return np.asarray(view)
-
     @property
     def slice(self):
         """slice: Slice of kdtree indices contained by this node."""
         return slice(self.start_idx, self.stop_idx)
-
     @property
     def neighbors(self):
         """list of int: Indices of all neighboring leaves including this
@@ -208,12 +206,8 @@ cdef class PyKDTree:
         self._idx = None
 
     def __init__(self, np.ndarray[double, ndim=2] pts = None,
-                 left_edge = None,
-                 right_edge = None,
-                 periodic = False,
-                 int leafsize = 10000,
-                 int nleaves = 0,
-                 data_version = None,
+                 left_edge = None, right_edge = None, periodic = False,
+                 int leafsize = 10000, int nleaves = 0, data_version = None,
                  use_sliding_midpoint = False):
         # Return with nothing set if points not provided
         if pts is None:

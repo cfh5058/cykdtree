@@ -3,15 +3,77 @@ import time
 from nose.tools import istest, nottest, assert_raises, assert_equal
 try:
     from mpi4py import MPI
-except ImportError:
-    MPI = None
-from cykdtree.tests import MPITest, assert_less_equal
-from cykdtree import utils
-try:
     from cykdtree import parallel_utils
 except ImportError:
+    MPI = None
     parallel_utils = None
+from cykdtree.tests import assert_less_equal, parametrize
+from cykdtree import utils
 Nproc = (3,4,5)
+
+
+def test_call_subprocess():
+    parallel_utils.call_subprocess(1, assert_less_equal, [1, 5], {},
+                                   with_coverage=True)
+
+
+def MPITest(Nproc, **pargs):
+    r"""Decorator generator for tests that must be run with MPI.
+
+    Args:
+        Nproc (int, list, tuple): Number of processors or list/tuple of
+            process counts that the test should be run with.
+        \*\*pargs: Additional parameter values that the test should be
+            parametrized by.
+
+    Returns:
+        func: Decorator function that calls the pass function with MPI.
+
+    """
+    if MPI is None:
+        return lambda x: None
+
+    if not isinstance(Nproc, (tuple, list)):
+        Nproc = (Nproc,)
+    max_size = max(Nproc)
+
+    def dec(func):
+        comm = MPI.COMM_WORLD
+        size = comm.Get_size()
+        rank = comm.Get_rank()
+
+        # print(size, Nproc, size in Nproc)
+
+        # First do setup
+        if (size not in Nproc):
+            @parametrize(Nproc=Nproc)
+            def wrapped(*args, **kwargs):
+                s = kwargs.pop('Nproc', 1)
+                parallel_utils.call_subprocess(s, func, args, kwargs,
+                                               with_coverage=True)
+
+            wrapped.__name__ = func.__name__
+            return wrapped
+
+        # Then just call the function
+        else:
+            @parametrize(**pargs)
+            def try_func(*args, **kwargs):
+                error_flag = np.array([0], 'int')
+                try:
+                    out = func(*args, **kwargs)
+                except Exception as error:
+                    import traceback
+                    print(traceback.format_exc())
+                    error_flag[0] = 1
+                flag_count = np.zeros(1, 'int')
+                comm.Allreduce(error_flag, flag_count)
+                if flag_count[0] > 0:
+                    raise Exception("Process %d: There were errors on %d processes." %
+                                    (rank, flag_count[0]))
+                return out
+            return try_func
+    return dec
 
 
 @MPITest(Nproc, ndim=(2,3))
