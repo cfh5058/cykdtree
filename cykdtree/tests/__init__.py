@@ -16,6 +16,20 @@ import os
 
 
 def assert_less_equal(x, y):
+    r"""Assert that x is less than or equal to y. Either variable can be a
+    scalar or numpy array. If they are both arrays, they must have the same
+    shape and elements are commpared on an element by element basis.
+
+    Args:
+        x (int, float, np.ndarray): Array on left side of <=.
+        y (int, float, np.ndarray): Array on right side of <=.
+
+    Raises:
+        AssertionError: If x and y are both arrays but do not have the same
+            shape.
+        AssertionError: If x is not less than or equal to y.
+
+    """
     size_match = True
     try:
         xshape = (1,)
@@ -124,6 +138,15 @@ def test_call_subprocess():
 
 
 def iter_dict(dicts):
+    r"""Create a series of dicts by combining parameter sets.
+
+    Args:
+        dicts (iterable): Dictionaries that should be combined.
+
+    Returns:
+        tuple: Dictionaries with combined keyword values from the input.
+
+    """
     try:
         return (dict(itertools.izip(dicts, x)) for x in
                 itertools.product(*dicts.itervalues()))
@@ -133,6 +156,13 @@ def iter_dict(dicts):
 
 
 def parametrize(**pargs):
+    r"""Decorator for iterating over tests for combinations of parameters.
+
+    Args:
+        \*\*pargs (dict): Dictionary of values for parameters that should be
+            iterated over.
+
+    """
     for k in pargs.keys():
         if not isinstance(pargs[k], (tuple, list)):
             pargs[k] = (pargs[k],)
@@ -163,6 +193,18 @@ def parametrize(**pargs):
 
 
 def MPITest(Nproc, **pargs):
+    r"""Decorator generator for tests that must be run with MPI.
+
+    Args:
+        Nproc (int, list, tuple): Number of processors or list/tuple of
+            process counts that the test should be run with.
+        \*\*pargs: Additional parameter values that the test should be
+            parametrized by.
+
+    Returns:
+        func: Decorator function that calls the pass function with MPI.
+
+    """
     if MPI is None:
         return lambda x: None
 
@@ -248,6 +290,21 @@ left_neighbors_y_periodic = [[5],
 
 @nottest
 def make_points_neighbors(periodic=False):
+    r"""Return test points and accompanying neighbor solution in 2D.
+
+    Args:
+        periodic (bool, optional): If True, the neighbor solution assumes the
+            domain is periodic. Defaults to False.
+
+    Returns:
+        pts (np.ndarray): Test points.
+        left_edge (np.ndarray): Minimum bounds of the domain.
+        right_edge (np.ndarray): Maximum bounds of the domain.
+        leafsize (int): Size of leaves in the test tree.
+        ln (list): List of neighbors to the left in the x and y dimensions.
+        rn (list): List of neighbors to the right in the x and y dimensions.
+
+    """
     ndim = 2
     npts = 50
     leafsize = 10
@@ -292,6 +349,34 @@ def test_make_points_neighbors():
 
 @nottest
 def make_points(npts, ndim, leafsize=10, distrib='rand', seed=100):
+    r"""Create test points.
+
+    Args:
+        npts (int): Number of points that should be generated. If <=0, there
+            will be 100 points with a known solution in 2 and 3 dimensions.
+        ndim (int): Number of dimensions that points should have.
+        leafsize (int, optional): Size of leaves that should be used. Defaults
+            to 10.
+        distrib (str, optional): The distribution that should be used to
+            generate the points. Supported values include:
+              'rand': [DEFAULT] Random distirbution.
+              'uniform': Uniform distribution.
+              'normal' or 'gaussian': Normal distribution.
+        seed (int, optional): Seed to use for random number generation.
+            Defaults to 100.
+
+    Returns:
+        pts (np.ndarray): Test points.
+        left_edge (np.ndarray): Minimum bounds of the domain.
+        right_edge (np.ndarray): Maximum bounds of the domain.
+        leafsize (int): Size of leaves in the test tree. This will be equal to
+            the input parameter unless npts <= 0 and then it will be set to the
+            value for the known solution.
+
+    Raises:
+        ValueError: If the distrib is not one of the above supported values.
+
+    """
     ndim = int(ndim)
     npts = int(npts)
     leafsize = int(leafsize)
@@ -412,7 +497,9 @@ from cykdtree.tests import test_kdtree
 from cykdtree.tests import test_plot
 from cykdtree.tests import test_parallel_kdtree
 from cykdtree.tests import scaling
+from cykdtree.tests import test_scaling
 
 __all__ = ["MPITest", "test_utils", "test_kdtree",
            "test_parallel_kdtree", "test_plot", "make_points",
-           "make_points_neighbors", "run_test", "scaling"]
+           "make_points_neighbors", "run_test", "scaling",
+           "test_scaling"]
