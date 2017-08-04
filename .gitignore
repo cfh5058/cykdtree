@@ -1,6 +1,6 @@
 syntax: glob
 
-.coverage
+.coverage*
 /htmlcov/*
 cykdtree/c_parallel_kdtree.cpp
 cykdtree/kdtree.cpp
