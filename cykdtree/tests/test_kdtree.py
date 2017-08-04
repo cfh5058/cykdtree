@@ -1,9 +1,23 @@
 import numpy as np
 import time
+import os
 import tempfile
 from nose.tools import assert_raises
 import cykdtree
 from cykdtree.tests import parametrize, make_points, make_points_neighbors
+
+
+def test_get_include():
+    idir = cykdtree.get_include()
+    test_file = os.path.join(idir, 'c_kdtree.hpp')
+    assert(os.path.isfile(test_file))
+
+
+def test_make_tree(npts=100, ndim=2):
+    assert_raises(ValueError, cykdtree.make_tree, np.ones((3,3,3)))
+    pts, le, re, ls = make_points(npts, ndim)
+    cykdtree.make_tree(pts, leafsize=ls, nproc=1)
+    cykdtree.make_tree(pts, leafsize=ls, nproc=2)
 
 
 @parametrize(npts=100, ndim=(2, 3), periodic=(False, True), 

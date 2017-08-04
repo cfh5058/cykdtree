@@ -10,7 +10,7 @@ except ImportError:
 from cykdtree import tests, plot
 
 
-def run_nose(verbose=False):
+def run_nose(verbose=False): # pragma: no cover
     import nose
     nose_argv = sys.argv
     nose_argv += ['--detailed-errors', '--exe']
