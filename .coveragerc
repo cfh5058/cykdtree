@@ -1,0 +1,15 @@
+[run]
+plugins = Cython.Coverage
+omit =
+    */python?.?/*
+    */lib-python/?.?/*.py
+    */lib_pypy/_*.py
+    */site-packages/ordereddict.py
+    */site-packages/nose/*
+    */unittest2/*
+    *.pxd
+
+[report]
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover

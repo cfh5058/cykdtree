@@ -11,6 +11,7 @@ release = True
 
 # Check for ReadTheDocs flag
 RTDFLAG = bool(os.environ.get('READTHEDOCS', None) == 'True')
+COVFLAG = bool(os.environ.get('CYKDTREE_COVERAGE', None) == 'True')
 
 # Check for Cython
 try:
@@ -24,6 +25,14 @@ ext_options = dict(language="c++",
                    libraries=[],
                    extra_link_args=[],
                    extra_compile_args=["-std=c++03"])
+cyt_options = {}
+
+if COVFLAG:
+    cyt_options['compiler_directives'] = {'linetrace': True,
+                                          'profile': True,
+                                          'binding': True}
+    ext_options['define_macros'] = [('CYTHON_TRACE', 1),
+                                    ('CYTHON_TRACE_NOGIL', 1)]
 
 
 def call_subprocess(args):
@@ -143,7 +152,7 @@ class sdist(_sdist):
                 'pypandoc so we are exiting.'
             )
         from Cython.Build import cythonize
-        cythonize(ext_modules)
+        cythonize(ext_modules, **cyt_options)
         _sdist.run(self)
 
 try:
@@ -177,4 +186,4 @@ setup(name='cykdtree',
       license='BSD',
       zip_safe=False,
       cmdclass={'build_ext': build_ext, 'sdist': sdist},
-      ext_modules=cythonize(ext_modules))
+      ext_modules=cythonize(ext_modules, **cyt_options))

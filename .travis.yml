@@ -11,6 +11,7 @@ env:
     CYTHON=cython
     MATPLOTLIB=matplotlib
     MPLBACKEND=agg
+    CYKDTREE_COVERAGE=False  # Keep coverage turned off to improve speed
 
 matrix:
   include:
@@ -29,6 +30,8 @@ matrix:
           - $HOME/Library/Caches/pip
           # `cache` does not support `env`-like `global` so copy-paste from top
           - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
+    - python: 2.7
+      env: CYKDTREE_COVERAGE=True
 
 before_install:
   - |
@@ -52,10 +55,10 @@ install:
     pip install --upgrade wheel
     pip install --upgrade setuptools
     # Install dependencies
-    pip install $NUMPY $CYTHON $MATPLOTLIB nose
+    pip install $NUMPY $CYTHON $MATPLOTLIB nose coverage coveralls
     # install cykdtree
     pip install -e .
 
 script:
   - |
-    nosetests --nologcapture -sv cykdtree
+    nosetests --nologcapture --with-coverage --cover-package=cykdtree -sv cykdtree
