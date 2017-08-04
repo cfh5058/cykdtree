@@ -4,7 +4,7 @@ import pstats
 import time
 import signal
 from subprocess import Popen, PIPE
-from nose.tools import istest, nottest
+from nose.tools import istest, nottest, assert_raises
 try:
     from mpi4py import MPI
 except ImportError:
@@ -12,6 +12,7 @@ except ImportError:
 import numpy as np
 import itertools
 import sys
+import os
 
 
 def assert_less_equal(x, y):
@@ -37,6 +38,14 @@ def assert_less_equal(x, y):
                              "x: %s\ny: %s\n" % (str(x), str(y)))
 
 
+def test_assert_less_equal():
+    x = np.zeros(5)
+    y = np.ones(5)
+    assert_less_equal(x, y)
+    assert_raises(AssertionError, assert_less_equal, y, x)
+    assert_raises(AssertionError, assert_less_equal, x, np.ones(3))
+
+
 def call_subprocess(np, func, args, kwargs):
     # Create string with arguments & kwargs
     args_str = ""
@@ -58,8 +67,12 @@ def call_subprocess(np, func, args, kwargs):
     if exit_code != 0:
         print(err.decode('utf-8'))
         raise Exception("Error on spawned process. See output.")
-        return None
+        # return None
     return output.decode('utf-8')
+
+
+def test_call_subprocess():
+    call_subprocess(1, assert_less_equal, [1, 5], {})
 
 
 def iter_dict(dicts):
@@ -225,6 +238,10 @@ def make_points_neighbors(periodic=False):
     return pts, left_edge, right_edge, leafsize, ln, rn
 
 
+def test_make_points_neighbors():
+    make_points_neighbors()
+
+
 @nottest
 def make_points(npts, ndim, leafsize=10, distrib='rand', seed=100):
     ndim = int(ndim)
@@ -268,6 +285,15 @@ def make_points(npts, ndim, leafsize=10, distrib='rand', seed=100):
         left_edge = None
         right_edge = None
     return pts, left_edge, right_edge, leafsize
+
+
+@parametrize(npts=(-1,10), ndim=(2,3,4), distrib=('rand', 'uniform', 'normal'))
+def test_make_points(npts=-1, ndim=2, distrib='rand'):
+    make_points(npts, ndim, distrib=distrib)
+
+
+def test_make_points_errors():
+    assert_raises(ValueError, make_points, 10, 2, distrib='bad value')
 
 
 @nottest
@@ -314,6 +340,8 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
         t1 = time.time()
         ps = pstats.Stats(pr)
         ps.add(kwargs['profile'])
+        if os.path.isfile(kwargs['profile']):
+            os.remove(kwargs['profile'])
         if isinstance(profile, str):
             ps.dump_stats(profile)
             print("Stats saved to {}".format(profile))
@@ -323,6 +351,12 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
             # ps.sort_stats(sort_key).print_callers(5)
             print("{} s according to 'time'".format(t1-t0))
         return ps    
+
+
+def test_run_test(npts=10, ndim=2, nproc=2, profile='temp_file.dat'):
+    run_test(npts, ndim, nproc=nproc, profile=profile)
+    assert(os.path.isfile(profile))
+    os.remove(profile)
 
 
 from cykdtree.tests import test_utils
