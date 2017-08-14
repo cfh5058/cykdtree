@@ -62,3 +62,6 @@ install:
 script:
   - |
     nosetests --nologcapture --with-coverage --cover-package=cykdtree -sv cykdtree
+
+after_success:
+  - coveralls
