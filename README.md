@@ -1,4 +1,6 @@
 # README #
+[![Build Status](https://travis-ci.org/cykdtree/cykdtree.svg?branch=master)](https://travis-ci.org/cykdtree/cykdtree)
+
 cykdtree is a Python interface to a C++ implementation of a kd-tree using Cython. Documentation can be found [here](http://cykdtree.readthedocs.io/en/latest/).
 
 ## Licensing ##
