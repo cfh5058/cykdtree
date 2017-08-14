@@ -318,6 +318,7 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
     if MPI is None and nproc > 1:  # pragma: w/o MPI
         raise RuntimeError("MPI could not be imported for parallel run.")
     unique_str = datetime.today().strftime("%Y%j%H%M%S")
+    print(unique_str)
     pts, left_edge, right_edge, leafsize = make_points(npts, ndim,
                                                        leafsize=leafsize,
                                                        distrib=distrib)
