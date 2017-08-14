@@ -33,8 +33,11 @@ matrix:
           - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
     - python: 2.7
       env: CYKDTREE_COVERAGE=True
+      # env: CYKDTREE_COVERAGE=True MPI=mpich
     - python: 2.7
       env: MPI=mpich
+    # - python: 2.7
+    #   env: MPI=openmpi
 
 before_install:
   - |
@@ -43,10 +46,12 @@ before_install:
       python -m virtualenv venv
       source venv/bin/activate
       export PATH=/usr/lib/ccache:$PATH
+      if [[ "$MPI" != "none" ]]; then sh install-mpi.sh $MPI; fi
     else
       brew update
       brew install ccache
       export PATH=/usr/local/opt/ccache/libexec:$PATH
+      if [[ "$MPI" != "none" ]]; then brew install $MPI; fi
     fi
 
 install:
@@ -59,6 +64,7 @@ install:
     pip install --upgrade setuptools
     # Install dependencies
     pip install $NUMPY $CYTHON $MATPLOTLIB nose coverage coveralls
+    if [[ "$MPI" != "none" ]]; then pip install mpi4py; fi
     # install cykdtree
     pip install -e .
 

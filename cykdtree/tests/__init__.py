@@ -315,6 +315,8 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
 
     """
     from cykdtree import make_tree
+    if MPI is None and nproc > 1:  # pragma: w/o MPI
+        raise RuntimeError("MPI could not be imported for parallel run.")
     unique_str = datetime.today().strftime("%Y%j%H%M%S")
     pts, left_edge, right_edge, leafsize = make_points(npts, ndim,
                                                        leafsize=leafsize,
@@ -350,9 +352,12 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
 
 
 def test_run_test(npts=10, ndim=2, nproc=2, profile='temp_file.dat'):
-    run_test(npts, ndim, nproc=nproc, profile=profile)
-    assert(os.path.isfile(profile))
-    os.remove(profile)
+    if MPI is None:  # pragma: w/o MPI
+        assert_raises(RuntimeError, run_test, npts, ndim, nproc=nproc)
+    else:  # pragma: w/ MPI
+        run_test(npts, ndim, nproc=nproc, profile=profile)
+        assert(os.path.isfile(profile))
+        os.remove(profile)
 
 
 from cykdtree.tests import test_utils
