@@ -25,4 +25,5 @@ exclude_lines =
 [Cython.Coverage]
 exclude_lines = 
 	^\s*def (\S+)\s*\(.*\):
-	^\s*cdef (\S+)\s+(\S+)\s*\(.*\):
+	^\s*cdef (\S+.*?) \s*(\S+)\s*\(.*\):
+
