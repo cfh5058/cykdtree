@@ -170,6 +170,7 @@ def test_split(N=10, ndim=2, use_sliding_midpoint=False):
     np.random.seed(10)
     pts = np.random.rand(N, ndim).astype('float64')
     p = int(N)//2 + int(N)%2
+    q, d, idx = utils.py_split(pts)
     q, d, idx = utils.py_split(pts, use_sliding_midpoint=use_sliding_midpoint)
     assert_equal(idx.size, N)
     if (N == 0):

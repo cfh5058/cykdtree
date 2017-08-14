@@ -5,9 +5,9 @@ import time
 import signal
 from nose.tools import istest, nottest, assert_raises
 try:
-    from mpi4py import MPI
-except ImportError:
-    MPI=None
+    from mpi4py import MPI 
+except ImportError:  # pragma: w/o MPI
+    MPI = None
 import numpy as np
 import itertools
 import os

@@ -3,7 +3,7 @@ from cykdtree.plot import plot2D_serial, plot2D_parallel
 from cykdtree.kdtree import PyKDTree
 try:
     from cykdtree.parallel_kdtree import PyParallelKDTree
-except ImportError:
+except ImportError:  # pragma: w/o MPI
     PyParallelKDTree = None
 from cykdtree.tests import make_points
 

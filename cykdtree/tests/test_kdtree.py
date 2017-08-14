@@ -20,6 +20,14 @@ def test_make_tree(npts=100, ndim=2):
     cykdtree.make_tree(pts, leafsize=ls, nproc=2)
 
 
+def test_PyNode():
+    n0 = cykdtree.kdtree.PyNode()
+    pts, le, re, ls = make_points(100, 2)
+    T = cykdtree.PyKDTree(pts, le, re, leafsize=ls)
+    n1 = T.leaves[0]
+    n0.init_node(n1)
+
+
 def test_PyNode_properties():
     pts, le, re, ls = make_points(100, 2)
     T = cykdtree.PyKDTree(pts, le, re, leafsize=ls)
@@ -30,7 +38,7 @@ def test_PyNode_properties():
     for p in prop_list:
         print(p)
         getattr(n, p)
-    
+        eval('n.%s' % p)
 
 def test_PyNode_repr():
     pts, le, re, ls = make_points(100, 2)
@@ -53,6 +61,7 @@ def test_PyKDTree_errors():
 def test_PyKDTree_defaults():
     cykdtree.PyKDTree()
     pts, le, re, ls = make_points(10, 2)
+    cykdtree.PyKDTree(pts=pts)
     cykdtree.PyKDTree(pts, leafsize=ls)
     cykdtree.PyKDTree(pts, leafsize=ls, periodic=np.ones(2, 'bool'))
     cykdtree.PyKDTree(pts, nleaves=4)
@@ -67,12 +76,14 @@ def test_PyKDTree_properties():
     for p in prop_list:
         print(p)
         getattr(T, p)
+        eval('T.%s' % p)
     
 
 @parametrize(strict_idx=(False, True))
 def test_assert_equal(strict_idx=False):
     pts, le, re, ls = make_points(100, 2)
     T = cykdtree.PyKDTree(pts, le, re, leafsize=ls)
+    T.assert_equal(T, strict_idx)
     T.assert_equal(T, strict_idx=strict_idx)
 
 

@@ -5,13 +5,14 @@ from subprocess import Popen, PIPE
 import copy
 import numpy
 import os
+import sys
 
-# Set to false to enable tracking of Cython lines in profile
-release = True
+PY_MAJOR_VERSION = sys.version_info[0]
 
-# Check for ReadTheDocs flag
+# Check for ReadTheDocs/coverage flags
 RTDFLAG = bool(os.environ.get('READTHEDOCS', None) == 'True')
 COVFLAG = bool(os.environ.get('CYKDTREE_COVERAGE', None) == 'True')
+PRFFLAG = bool(os.environ.get('CYKDTREE_PROFILE', None) == 'True')
 
 # Check for Cython
 try:
@@ -27,13 +28,22 @@ ext_options = dict(language="c++",
                    extra_compile_args=["-std=c++03"])
 cyt_options = {}
 
-if COVFLAG:
+# Needed for line_profiler/coverage - disabled for production code
+if not RTDFLAG and (COVFLAG or PRFFLAG):
+    try:
+        from Cython.Compiler.Options import directive_defaults
+    except ImportError:
+        # Update to cython
+        from Cython.Compiler.Options import get_directive_defaults
+        directive_defaults = get_directive_defaults()
+    directive_defaults['profile'] = True
+    directive_defaults['linetrace'] = True
+    directive_defaults['binding'] = True
     cyt_options['compiler_directives'] = {'linetrace': True,
                                           'profile': True,
                                           'binding': True}
     ext_options['define_macros'] = [('CYTHON_TRACE', 1),
                                     ('CYTHON_TRACE_NOGIL', 1)]
-
 
 def call_subprocess(args):
     p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
@@ -54,10 +64,8 @@ def get_mpi_args(mpi_executable, compile_argument, link_argument):
         return None
     return compile_args, link_args
 
-# CYTHON_TRACE required for coverage and line_profiler.  Remove for release.
-if not release:
-    ext_options['define_macros'] = [('CYTHON_TRACE', '1')]
 
+# Add MPI libraries
 ext_options_mpi = copy.deepcopy(ext_options)
 compile_parallel = True
 if RTDFLAG:
@@ -82,18 +90,56 @@ else:
     except ImportError:
         compile_parallel = False
 
-# Needed for line_profiler - disable for production code
-if not RTDFLAG and not release:
-    try:
-        from Cython.Compiler.Options import directive_defaults
-    except ImportError:
-        # Update to cython
-        from Cython.Compiler.Options import get_directive_defaults
-        directive_defaults = get_directive_defaults()
-    directive_defaults['profile'] = True
-    directive_defaults['linetrace'] = True
-    directive_defaults['binding'] = True
 
+# Set coverage options in .coveragerc
+if COVFLAG:
+    from coverage.config import HandyConfigParser
+    covrc = '.coveragerc'
+    cp = HandyConfigParser("")
+    cp.read(covrc)
+    if not cp.has_section('report'):
+        cp.add_section('report')
+    if cp.has_option('report', 'exclude_lines'):
+        excl_list = cp.get('report', 'exclude_lines')
+    else:
+        excl_list = ""
+    def add_excl_rule(excl_list, new_rule):
+        if new_rule not in excl_list:
+            excl_list += "\n" + new_rule
+        return excl_list
+    def rm_excl_rule(excl_list, new_rule):
+        if new_rule in excl_list:
+            excl_list = excl_list.replace("\n" + new_rule, "")
+        return excl_list
+    # Python version
+    verlist = [2, 3]
+    for v in verlist:
+        vincl = 'pragma: Python %d' % v
+        if PY_MAJOR_VERSION == v:
+            excl_list = rm_excl_rule(excl_list, vincl)
+        else:
+            excl_list = add_excl_rule(excl_list, vincl)
+    # MPI
+    if compile_parallel:
+        excl_list = add_excl_rule(excl_list, 'pragma: w/o MPI')
+        excl_list = rm_excl_rule(excl_list, 'pragma: w/ MPI')
+    else:
+        excl_list = add_excl_rule(excl_list, 'pragma: w/ MPI')
+        excl_list = rm_excl_rule(excl_list, 'pragma: w/o MPI')
+    # Add and write
+    if not cp.has_section('Cython.Coverage'):
+        cp.add_section('Cython.Coverage')
+    cp.set('report', 'exclude_lines', excl_list) 
+    if cp.has_option('Cython.Coverage', 'exclude_lines'):
+        cy_excl_list = cp.get('Cython.Coverage', 'exclude_lines')
+        cy_excl_list += excl_list
+    else:
+        cy_excl_list = excl_list
+    cp.set('Cython.Coverage', 'exclude_lines', cy_excl_list)
+    with open(covrc, 'w') as fd:
+        cp.write(fd)
+
+# Cythonize modules
 ext_modules = []
 
 def make_cpp(cpp_file):
@@ -187,3 +233,4 @@ setup(name='cykdtree',
       zip_safe=False,
       cmdclass={'build_ext': build_ext, 'sdist': sdist},
       ext_modules=cythonize(ext_modules, **cyt_options))
+
