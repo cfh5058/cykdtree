@@ -5,6 +5,10 @@ import os
 import cProfile
 import pstats
 from cykdtree.tests import run_test
+try:
+    from mpi4py import MPI
+except ImportError:  # pragma: w/o MPI
+    MPI = None
 
 
 def stats_run(npart, nproc, ndim, periodic=False, overwrite=False,
@@ -26,6 +30,8 @@ def stats_run(npart, nproc, ndim, periodic=False, overwrite=False,
             Defaults to False.
 
     """
+    if MPI is None and nproc > 1:  # pragma: w/o MPI
+        raise RuntimeError("MPI could not be imported for parallel run.")
     perstr = ""
     outstr = ""
     if periodic:
@@ -67,6 +73,8 @@ def time_run(npart, nproc, ndim, nrep=1, periodic=False, leafsize=10,
             timing purposes. Defaults to False.
 
     """
+    if MPI is None and nproc > 1:  # pragma: w/o MPI
+        raise RuntimeError("MPI could not be imported for parallel run.")
     times = np.empty(nrep, 'float')
     for i in range(nrep):
         t1 = time.time()
@@ -107,6 +115,8 @@ def strong_scaling(npart=1e6, nrep=1, periodic=False, leafsize=10,
 
     """
     import matplotlib.pyplot as plt
+    if MPI is None and max(nproc_list) > 1:  # pragma: w/o MPI
+        raise RuntimeError("MPI could not be imported for parallel run.")
     npart = int(npart)
     perstr = ""
     outstr = ""
@@ -170,6 +180,8 @@ def weak_scaling(npart=1e4, nrep=1, periodic=False, leafsize=10,
 
     """
     import matplotlib.pyplot as plt
+    if MPI is None and max(nproc_list) > 1:  # pragma: w/o MPI
+        raise RuntimeError("MPI could not be imported for parallel run.")
     npart = int(npart)
     perstr = ""
     outstr = ""

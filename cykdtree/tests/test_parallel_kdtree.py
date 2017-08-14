@@ -14,20 +14,21 @@ Nproc = (3,4,5)
 
 def test_spawn_parallel(nproc=3, npts=20, ndim=2, periodic=False,
                         leafsize=3):
-    if MPI is None:
+    if MPI is None:  # pragma: w/o MPI
         return
-    pts, le, re, ls = make_points(npts, ndim, leafsize=leafsize)
-    Tseri = cykdtree.spawn_parallel(pts, nproc, leafsize=leafsize,
-                                    left_edge=le, right_edge=re,
-                                    periodic=periodic, with_coverage=True,
-                                    profile=True)
-    profile = 'temp_prof.txt'
-    Tseri = cykdtree.spawn_parallel(pts, nproc, leafsize=leafsize,
-                                    left_edge=le, right_edge=re,
-                                    periodic=periodic, with_coverage=True,
-                                    profile=profile)
-    assert(os.path.isfile(profile))
-    os.remove(profile)
+    else: # pragma: w/ MPI
+        pts, le, re, ls = make_points(npts, ndim, leafsize=leafsize)
+        Tseri = cykdtree.spawn_parallel(pts, nproc, leafsize=leafsize,
+                                        left_edge=le, right_edge=re,
+                                        periodic=periodic, with_coverage=True,
+                                        profile=True)
+        profile = 'temp_prof.txt'
+        Tseri = cykdtree.spawn_parallel(pts, nproc, leafsize=leafsize,
+                                        left_edge=le, right_edge=re,
+                                        periodic=periodic, with_coverage=True,
+                                        profile=profile)
+        assert(os.path.isfile(profile))
+        os.remove(profile)
 
 
 @MPITest(Nproc, periodic=(False, True), ndim=(2,3))
@@ -215,20 +216,26 @@ def test_consolidate_process_bounds(periodic=False, ndim=2):
 
 
 def time_tree_construction(Ntime, LStime, ndim=2):
-    pts, le, re, ls = make_points(Ntime, ndim, leafsize=LStime)
-    t0 = time.time()
-    cykdtree.PyParallelKDTree(pts, le, re, leafsize=LStime)
-    t1 = time.time()
-    print("{} {}D points, leafsize {}: took {} s".format(Ntime, ndim, LStime, t1-t0))
+    if MPI is None:  # pragma: w/o MPI
+        return
+    else:  # pragma: w/ MPI
+        pts, le, re, ls = make_points(Ntime, ndim, leafsize=LStime)
+        t0 = time.time()
+        cykdtree.PyParallelKDTree(pts, le, re, leafsize=LStime)
+        t1 = time.time()
+        print("{} {}D points, leafsize {}: took {} s".format(Ntime, ndim, LStime, t1-t0))
 
 
 def time_neighbor_search(Ntime, LStime, ndim=2):
-    pts, le, re, ls = make_points(Ntime, ndim, leafsize=LStime)
-    tree = cykdtree.PyParallelKDTree(pts, le, re, leafsize=LStime)
-    t0 = time.time()
-    tree.get_neighbor_ids(0.5*np.ones(tree.ndim, 'double'))
-    t1 = time.time()
-    print("{} {}D points, leafsize {}: took {} s".format(Ntime, ndim, LStime, t1-t0))
+    if MPI is None:  # pragma: w/o MPI
+        return
+    else:  # pragma: w/ MPI
+        pts, le, re, ls = make_points(Ntime, ndim, leafsize=LStime)
+        tree = cykdtree.PyParallelKDTree(pts, le, re, leafsize=LStime)
+        t0 = time.time()
+        tree.get_neighbor_ids(0.5*np.ones(tree.ndim, 'double'))
+        t1 = time.time()
+        print("{} {}D points, leafsize {}: took {} s".format(Ntime, ndim, LStime, t1-t0))
 
 
 def test_time_tree_construction():

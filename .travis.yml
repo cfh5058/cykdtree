@@ -11,6 +11,7 @@ env:
     CYTHON=cython
     MATPLOTLIB=matplotlib
     MPLBACKEND=agg
+    MPI=none
     CYKDTREE_COVERAGE=False  # Keep coverage turned off to improve speed
 
 matrix:
@@ -32,6 +33,8 @@ matrix:
           - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
     - python: 2.7
       env: CYKDTREE_COVERAGE=True
+    - python: 2.7
+      env: MPI=mpich
 
 before_install:
   - |

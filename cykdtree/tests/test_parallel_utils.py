@@ -14,6 +14,8 @@ Nproc_single = 3
 
 
 def test_call_subprocess():
+    if MPI is None:
+        return  # pragma: w/o MPI 
     parallel_utils.call_subprocess(1, assert_less_equal, [1, 5], {},
                                    with_coverage=True)
 

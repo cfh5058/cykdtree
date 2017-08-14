@@ -217,7 +217,7 @@ cdef class PyKDTree:
     def __init__(self, np.ndarray[double, ndim=2] pts = None,
                  left_edge = None, right_edge = None, periodic = False,
                  int leafsize = 10000, int nleaves = 0, data_version = None,
-                 use_sliding_midpoint = False):
+                 use_sliding_midpoint = False, **kwargs):
         # Return with nothing set if points not provided
         if pts is None:
             return
