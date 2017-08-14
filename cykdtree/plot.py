@@ -151,53 +151,61 @@ def plot2D_parallel(tree, pts=None, label_boxes=False, label_procs=False,
         process. None is returned on all other processes.
 
     """
-    from mpi4py import MPI
-    comm = MPI.COMM_WORLD
-    size = comm.Get_size()
-    rank = comm.Get_rank()
+    try:
+        from mpi4py import MPI
+    except ImportError:  # pragma: w/o MPI
+        MPI = None
 
-    # Gather points & edges
-    all_pts = comm.gather(pts, root=0)
+    if MPI is None:  # pragma: w/o MPI
+        raise RuntimeError("MPI could not be imported for parallel run.")
+    else:  # pragma: w/ MPI
 
-    # Gather edges
-    seg = []
-    for leaf in tree.leaves.values():
-        le = leaf.left_edge
-        re = leaf.right_edge
-        # Top
-        seg.append(np.array([[le[0], re[1]], [re[0], re[1]]], 'float'))
-        # Bottom
-        seg.append(np.array([[le[0], le[1]], [re[0], le[1]]], 'float'))
-        # Left
-        seg.append(np.array([[le[0], le[1]], [le[0], re[1]]], 'float'))
-        # Right
-        seg.append(np.array([[re[0], le[1]], [re[0], re[1]]], 'float'))
-    seg_recv = comm.gather(seg, root=0)
-    all_seg = []
-    if rank == 0:
-        for s in seg_recv:
-            all_seg += s
+        comm = MPI.COMM_WORLD
+        size = comm.Get_size()
+        rank = comm.Get_rank()
 
-    # Gather text
-    txt = None
-    all_txt = None
-    if label_boxes or label_procs:
-        txt = []
+        # Gather points & edges
+        all_pts = comm.gather(pts, root=0)
+
+        # Gather edges
+        seg = []
         for leaf in tree.leaves.values():
-            t = ''
-            if label_boxes: 
-                t += '%d ' % leaf.id
-            if label_procs:
-                t += 'on %d ' % rank
-            txt.append((leaf.left_edge[0], leaf.left_edge[1], t))
-        txt_recv = comm.gather(txt, root=0)
-        all_txt = []
+            le = leaf.left_edge
+            re = leaf.right_edge
+            # Top
+            seg.append(np.array([[le[0], re[1]], [re[0], re[1]]], 'float'))
+            # Bottom
+            seg.append(np.array([[le[0], le[1]], [re[0], le[1]]], 'float'))
+            # Left
+            seg.append(np.array([[le[0], le[1]], [le[0], re[1]]], 'float'))
+            # Right
+            seg.append(np.array([[re[0], le[1]], [re[0], re[1]]], 'float'))
+        seg_recv = comm.gather(seg, root=0)
+        all_seg = []
         if rank == 0:
-            for t in txt_recv:
-                all_txt += t
+            for s in seg_recv:
+                all_seg += s
 
-    # Plot
-    if rank == 0:
-        return _plot2D_root(all_seg, pts=all_pts, txt=all_txt, **kwargs)
-    else: # pragma: no cover
-        return None
+        # Gather text
+        txt = None
+        all_txt = None
+        if label_boxes or label_procs:
+            txt = []
+            for leaf in tree.leaves.values():
+                t = ''
+                if label_boxes: 
+                    t += '%d ' % leaf.id
+                if label_procs:
+                    t += 'on %d ' % rank
+                txt.append((leaf.left_edge[0], leaf.left_edge[1], t))
+            txt_recv = comm.gather(txt, root=0)
+            all_txt = []
+            if rank == 0:
+                for t in txt_recv:
+                    all_txt += t
+
+        # Plot
+        if rank == 0:
+            return _plot2D_root(all_seg, pts=all_pts, txt=all_txt, **kwargs)
+        else: # pragma: no cover
+            return None
