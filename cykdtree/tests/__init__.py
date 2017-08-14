@@ -323,7 +323,7 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
                                                        leafsize=leafsize,
                                                        distrib=distrib)
     # Set keywords for multiprocessing version
-    if nproc > 1:
+    if nproc > 1:  # pragma: w/ MPI
         kwargs['suppress_final_output'] = suppress_final_output
         if profile:
             kwargs['profile'] = '{}_mpi_profile.dat'.format(unique_str)
@@ -355,10 +355,10 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
 def test_run_test(npts=10, ndim=2, nproc=2, profile='temp_file.dat'):
     if MPI is None:  # pragma: w/o MPI
         assert_raises(RuntimeError, run_test, npts, ndim, nproc=nproc)
-    else:  # pragma: w/ MPI
-        run_test(npts, ndim, nproc=nproc, profile=profile)
-        assert(os.path.isfile(profile))
-        os.remove(profile)
+        nproc = 1
+    run_test(npts, ndim, nproc=nproc, profile=profile)
+    assert(os.path.isfile(profile))
+    os.remove(profile)
 
 
 from cykdtree.tests import test_utils
