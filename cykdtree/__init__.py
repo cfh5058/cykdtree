@@ -4,7 +4,7 @@ PY_MAJOR_VERSION = sys.version_info[0]
 from cykdtree.kdtree import PyKDTree, PyNode
 try:
     from cykdtree.parallel_kdtree import PyParallelKDTree, spawn_parallel, parallel_worker
-    FLAG_MULTIPROC = True
+    FLAG_MULTIPROC = True  # pragma: w/ MPI
 except ImportError:  # pragma: w/o MPI
     PyParallelKDTree = spawn_parallel = parallel_worker = None
     FLAG_MULTIPROC = False
@@ -51,8 +51,11 @@ def make_tree(pts, nproc=0, **kwargs):
     if (pts.ndim != 2):
         raise ValueError("pts must be a 2D array of ND coordinates")
     # Parallel
-    if nproc > 1 and FLAG_MULTIPROC:
-        T = spawn_parallel(pts, nproc, **kwargs)
+    if nproc > 1:
+        if FLAG_MULTIPROC:   # pragma: w/ MPI
+            T = spawn_parallel(pts, nproc, **kwargs)
+        else:  # pragma: w/o MPI
+            T = PyKDTree(pts, **kwargs)
     # Serial
     else:
         T = PyKDTree(pts, **kwargs)
