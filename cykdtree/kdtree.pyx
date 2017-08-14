@@ -34,6 +34,31 @@ cdef class PyNode:
 
     """
 
+    def __cinit__(self):
+        # Initialize everthing to NULL/0/None to prevent seg fault
+        self._node = NULL
+        self.id = 0
+        self.npts = 0
+        self.ndim = 0
+        self.num_leaves = 0
+        self.start_idx = 0
+        self.stop_idx = 0
+        self._domain_width = NULL
+        self.left_neighbors = None
+        self.right_neighbors = None
+
+    def __init__(self):
+        pass
+
+    def init_node(self, PyNode solf):
+        r"""Initialize this node using data from another node.
+
+        Args:
+            solf (:class:`cykdtree.kdtree.PyNode`): Node to get info from.
+
+        """
+        self._init_node(solf._node, solf.num_leaves, solf._domain_width)
+
     cdef void _init_node(self, Node* node, uint32_t num_leaves,
                          double *domain_width):
         cdef np.uint32_t i, j
@@ -52,22 +77,6 @@ cdef class PyNode:
                                       range(node.left_neighbors[i].size())]
             self.right_neighbors[i] = [node.right_neighbors[i][j] for j in
                                        range(node.right_neighbors[i].size())]
-
-    def __cinit__(self):
-        # Initialize everthing to NULL/0/None to prevent seg fault
-        self._node = NULL
-        self.id = 0
-        self.npts = 0
-        self.ndim = 0
-        self.num_leaves = 0
-        self.start_idx = 0
-        self.stop_idx = 0
-        self._domain_width = NULL
-        self.left_neighbors = None
-        self.right_neighbors = None
-
-    def __init__(self):
-        pass
 
     def __repr__(self):
         nchars = 1 + len(str(self.__class__.__name__))

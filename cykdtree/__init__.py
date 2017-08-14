@@ -1,12 +1,13 @@
 import sys
 import os
 PY_MAJOR_VERSION = sys.version_info[0]
-FLAG_MULTIPROC = True # TODO: check that mpi installed
 from cykdtree.kdtree import PyKDTree, PyNode
 try:
     from cykdtree.parallel_kdtree import PyParallelKDTree, spawn_parallel, parallel_worker
+    FLAG_MULTIPROC = True
 except ImportError:  # pragma: w/o MPI
     PyParallelKDTree = spawn_parallel = parallel_worker = None
+    FLAG_MULTIPROC = False
 from cykdtree import tests, plot
 
 
