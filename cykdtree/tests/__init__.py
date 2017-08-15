@@ -72,13 +72,9 @@ def iter_dict(dicts):
         tuple: Dictionaries with combined keyword values from the input.
 
     """
-    try:  # pragma: Python 2
-        return (dict(itertools.izip(dicts, x)) for x in
-                itertools.product(*dicts.itervalues()))
-    except AttributeError:  # pragma: Python 3
-        kord = sorted(dicts.keys())
-        return (dict(zip(kord, x)) for x in 
-                itertools.product(*[dicts[k] for k in kord]))
+    kord = sorted(dicts.keys())
+    return (dict(zip(kord, x)) for x in 
+            itertools.product(*[dicts[k] for k in kord]))
 
 
 def parametrize(**pargs):

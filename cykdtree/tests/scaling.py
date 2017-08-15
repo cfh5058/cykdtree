@@ -11,7 +11,8 @@ except ImportError:  # pragma: w/o MPI
     MPI = None
 
 
-def stats_run(npart, nproc, ndim, periodic=False, overwrite=False,
+def stats_run(npart, nproc, ndim, periodic=False, 
+              fname=None, overwrite=False,
               display=False, suppress_final_output=False):
     r"""Get timing stats using :package:`cProfile`.
 
@@ -21,6 +22,9 @@ def stats_run(npart, nproc, ndim, periodic=False, overwrite=False,
         ndim (int): Number of dimensions.
         periodic (bool, optional): If True, the domain is assumed to be
             periodic. Defaults to False.
+        fname (str, optional): Path to file where stats should be saved
+            or loaded from if it exists and overwrite is False. Defaults to
+            None and a filename is created based on the provided parameters.
         overwrite (bool, optional): If True, the existing file for this
             set of input parameters if overwritten. Defaults to False.
         suppress_final_output (bool, optional): If True, the final output 
@@ -28,6 +32,9 @@ def stats_run(npart, nproc, ndim, periodic=False, overwrite=False,
             timing purposes. Defaults to False.
         display (bool, optional): If True, display the profile results.
             Defaults to False.
+
+    Returns:
+        str: The full path to the file containing the created stats.
 
     """
     if MPI is None and nproc > 1:  # pragma: w/o MPI
@@ -38,20 +45,21 @@ def stats_run(npart, nproc, ndim, periodic=False, overwrite=False,
         perstr = "_periodic"
     if suppress_final_output:
         outstr = "_noout"
-    fname_stat = 'stat_{}part_{}proc_{}dim{}{}.txt'.format(
-        npart, nproc, ndim, perstr, outstr)
-    if overwrite or not os.path.isfile(fname_stat):
+    fname_provided = (fname != None)
+    if not fname_provided:
+        fname = 'stat_{}part_{}proc_{}dim{}{}.txt'.format(
+            npart, nproc, ndim, perstr, outstr)
+    if overwrite or not os.path.isfile(fname):
         cProfile.run(
             "from cykdtree.tests import run_test; "+
             "run_test({}, {}, nproc={}, ".format(npart, ndim, nproc) +
             "periodic={}, ".format(periodic) +
             "suppress_final_output={})".format(suppress_final_output),
-            fname_stat)
+            fname)
     if display:
-        p = pstats.Stats(fname_stat)
+        p = pstats.Stats(fname)
         p.sort_stats('time').print_stats(10)
-        return p
-    return fname_stat
+    return fname
 
 
 def time_run(npart, nproc, ndim, nrep=1, periodic=False, leafsize=10,
@@ -75,16 +83,15 @@ def time_run(npart, nproc, ndim, nrep=1, periodic=False, leafsize=10,
     """
     if MPI is None and nproc > 1:  # pragma: w/o MPI
         raise RuntimeError("MPI could not be imported for parallel run.")
-    else: # pragma: w/ MPI
-        times = np.empty(nrep, 'float')
-        for i in range(nrep):
-            t1 = time.time()
-            run_test(npart, ndim, nproc=nproc,
-                     periodic=periodic, leafsize=leafsize,
-                     suppress_final_output=suppress_final_output)
-            t2 = time.time()
-            times[i] = t2 - t1
-        return np.mean(times), np.std(times)
+    times = np.empty(nrep, 'float')
+    for i in range(nrep):
+        t1 = time.time()
+        run_test(npart, ndim, nproc=nproc,
+                 periodic=periodic, leafsize=leafsize,
+                 suppress_final_output=suppress_final_output)
+        t2 = time.time()
+        times[i] = t2 - t1
+    return np.mean(times), np.std(times)
 
 
 def strong_scaling(npart=1e6, nrep=1, periodic=False, leafsize=10, 

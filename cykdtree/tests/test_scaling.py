@@ -8,15 +8,17 @@ except ImportError:  # pragma: w/o MPI
 
 
 def test_stats_run():
-    scaling.stats_run(100, 1, 2, display=True)
-    f = scaling.stats_run(100, 1, 2, periodic=True, overwrite=True,
+    f = scaling.stats_run(100, 1, 2, display=True)
+    f = scaling.stats_run(100, 1, 2, periodic=True,
+                          fname=f, overwrite=True,
                           suppress_final_output=True)
+    if MPI is None:  # pragma: w/o MPI
+        assert_raises(RuntimeError, scaling.stats_run, 100, 2, 2,
+                      fname=f, overwrite=True)
+    else:  # pragma: w/ MPI
+        f = scaling.stats_run(100, 2, 2, fname=f, overwrite=True)
     assert(os.path.isfile(f))
     os.remove(f)
-    if MPI is None: # pragma: w/o MPI
-        assert_raises(RuntimeError, scaling.stats_run, 100, 2, 2)
-    else:  # pragma: w/ MPI
-        scaling.stats_run(100, 2, 2)
 
 
 def test_time_run():

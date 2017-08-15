@@ -9,11 +9,7 @@ import cProfile
 import pstats
 from subprocess import Popen, PIPE
 from mpi4py import MPI
-from cykdtree import PY_MAJOR_VERSION
-if PY_MAJOR_VERSION == 2:  # pragma: Python 2
-    import cPickle as pickle
-else:                      # pragma: Python 3
-    import pickle  # pragma: Python 3
+from cykdtree.backwards import dump_to_pickle, load_from_pickle
 from libc.stdlib cimport malloc, free
 from libcpp cimport bool as cbool
 from cpython cimport bool as pybool
@@ -52,15 +48,7 @@ def spawn_parallel(np.ndarray[np.float64_t, ndim=2] pts, int nproc,
     finput = 'input_%s.dat' % unique_str
     foutput = 'output_%s.dat' % unique_str
     # Save input to a file
-    out = [pts, kwargs]
-    if PY_MAJOR_VERSION == 2:  # pragma: Python 2
-        with open(finput, 'wb') as fd:
-            pickle.dump(out, fd, pickle.HIGHEST_PROTOCOL)
-        assert(os.path.isfile(finput))
-    else:                      # pragma: Python 3
-        with open(finput, 'wb') as fd:  # pragma: Python 3 
-            pickle.dump(out, fd)        # pragma: Python 3 
-        assert(os.path.isfile(finput))  # pragma: Python 3 
+    dump_to_pickle(finput, [pts, kwargs])
     # Spawn in parallel
     out = call_subprocess(nproc, parallel_worker,
                           [finput, foutput], {},
@@ -100,8 +88,7 @@ def parallel_worker(finput, foutput):
     rank = comm.Get_rank()
     # Read input
     if rank == 0:
-        with open(finput, 'rb') as fd:
-            pts, kwargs = pickle.load(fd)
+        pts, kwargs = load_from_pickle(finput)
     else:
         pts, kwargs = (None, {})
     profile = kwargs.pop("profile", False)
