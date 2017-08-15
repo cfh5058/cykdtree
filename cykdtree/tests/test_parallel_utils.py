@@ -98,14 +98,14 @@ def test_parallel_distribute(ndim=2):  # pragma: w/ MPI
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
-    npts = 50
+    npts = int(50)
     if rank == 0:
         pts = np.random.rand(npts, ndim).astype('float64')
     else:
         pts = None
     total_pts = comm.bcast(pts, root=0)
     local_pts, local_idx = parallel_utils.py_parallel_distribute(pts)
-    npts_local = npts/size
+    npts_local = npts//size
     if rank < (npts%size):
         npts_local += 1
     assert_equal(local_pts.shape, (npts_local, ndim))
@@ -115,6 +115,7 @@ def test_parallel_distribute(ndim=2):  # pragma: w/ MPI
 
 @MPITest(Nproc, ndim=(2,3), npts=(10, 11, 50, 51))
 def test_parallel_pivot_value(ndim=2, npts=50):  # pragma: w/ MPI
+    npts = int(npts)
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
@@ -128,7 +129,7 @@ def test_parallel_pivot_value(ndim=2, npts=50):  # pragma: w/ MPI
 
     piv = parallel_utils.py_parallel_pivot_value(local_pts, pivot_dim)
 
-    nmax = (7*npts/10 + 6)
+    nmax = (7*npts//int(10) + 6)
     assert(np.sum(total_pts[:, pivot_dim] < piv) <= nmax)
     assert(np.sum(total_pts[:, pivot_dim] > piv) <= nmax)
 
@@ -140,7 +141,7 @@ def test_parallel_pivot_value(ndim=2, npts=50):  # pragma: w/ MPI
 
 @MPITest(Nproc, ndim=(2,3), npts=(10, 11, 50, 51))
 def test_parallel_select(ndim=2, npts=50):  # pragma: w/ MPI
-    total_npts = npts
+    total_npts = int(npts)
     pivot_dim = ndim-1
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
@@ -152,7 +153,7 @@ def test_parallel_select(ndim=2, npts=50):  # pragma: w/ MPI
     pts, orig_idx = parallel_utils.py_parallel_distribute(total_pts)
     npts = pts.shape[0]
 
-    p = int(total_npts)/2 + int(total_npts)%2
+    p = total_npts//2 + total_npts%2
     q, piv, idx = parallel_utils.py_parallel_select(pts, pivot_dim, p)
     assert_equal(idx.size, npts)
 
@@ -173,7 +174,7 @@ def test_parallel_select(ndim=2, npts=50):  # pragma: w/ MPI
 
 @MPITest(Nproc, ndim=(2,3), npts=(10, 11, 50, 51))
 def test_parallel_split(ndim=2, npts=50):  # pragma: w/ MPI
-    total_npts = npts
+    total_npts = int(npts)
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
@@ -184,7 +185,7 @@ def test_parallel_split(ndim=2, npts=50):  # pragma: w/ MPI
     pts, orig_idx = parallel_utils.py_parallel_distribute(total_pts)
     npts = pts.shape[0]
 
-    p = int(total_npts)/2 + int(total_npts)%2
+    p = total_npts//2 + total_npts%2
     q, pivot_dim, piv, idx = parallel_utils.py_parallel_split(pts, p)
     assert_equal(idx.size, npts)
 
@@ -217,7 +218,7 @@ def test_redistribute_split(ndim=2, npts=50, split_left=None):  # pragma: w/ MPI
     if split_left is None:
         split_rank = -1
     else:
-        split_rank = size/2
+        split_rank = size//int(2)
         if split_left:
             split_rank += size%2
     if rank == 0:
@@ -232,7 +233,7 @@ def test_redistribute_split(ndim=2, npts=50, split_left=None):  # pragma: w/ MPI
         pts, orig_idx, split_rank=split_rank)
     # Assume split_left is default for split_rank == -1
     if split_rank < 0:
-        split_rank = size/2 + size%2
+        split_rank = size//int(2) + size%2
 
     assert_equal(new_pts.shape[0], new_idx.size)
     assert_equal(new_pts.shape[1], ndim)

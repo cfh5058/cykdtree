@@ -38,15 +38,18 @@ def assert_less_equal(x, y):
                 xshape = x.shape
             if isinstance(y, np.ndarray):
                 yshape = y.shape
+        if xshape != (1,) and yshape != (1,):
             size_match = (xshape == yshape)
+            assert(size_match)
+        if xshape != (1,) or yshape != (1,):
             assert((x <= y).all())
         else:
             assert(x <= y)
-    except:
+    except AssertionError:
         if not size_match:
             raise AssertionError("Shape mismatch\n\n"+
                                  "x.shape: %s\ny.shape: %s\n" % 
-                                 (str(x.shape), str(y.shape)))
+                                 (str(xshape), str(yshape)))
         raise AssertionError("Variables are not less-equal ordered\n\n" +
                              "x: %s\ny: %s\n" % (str(x), str(y)))
 
@@ -73,7 +76,9 @@ def iter_dict(dicts):
         return (dict(itertools.izip(dicts, x)) for x in
                 itertools.product(*dicts.itervalues()))
     except AttributeError:  # pragma: Python 3
-        return (dict(zip(dicts, x)) for x in itertools.product(*dicts.values()))
+        kord = sorted(dicts.keys())
+        return (dict(zip(kord, x)) for x in 
+                itertools.product(*[dicts[k] for k in kord]))
 
 
 def parametrize(**pargs):
