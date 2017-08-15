@@ -1,7 +1,7 @@
 import numpy as np
 import time
 from nose.tools import istest, nottest, assert_raises, assert_equal
-try:
+try:  # pragma: w/ MPI
     from mpi4py import MPI
     from cykdtree import parallel_utils
 except ImportError:  # pragma: w/o MPI

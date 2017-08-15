@@ -212,6 +212,7 @@ def test_consolidate_process_bounds(periodic=False, ndim=2):  # pragma: w/ MPI
     Tpara = cykdtree.PyParallelKDTree(pts, le, re, leafsize=ls,
                                       periodic=periodic)
     LEpara, REpara = Tpara.consolidate_process_bounds()
+    print(LEpara.shape)
     assert_equal(LEpara.shape, (size, ndim))
     assert_equal(REpara.shape, (size, ndim))
     np.testing.assert_allclose(LEpara[rank,:], Tpara.left_edge)
