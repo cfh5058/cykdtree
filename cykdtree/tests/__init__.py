@@ -68,10 +68,10 @@ def iter_dict(dicts):
         tuple: Dictionaries with combined keyword values from the input.
 
     """
-    try:
+    try:  # pragma: Python 3
         return (dict(itertools.izip(dicts, x)) for x in
                 itertools.product(*dicts.itervalues()))
-    except AttributeError:
+    except AttributeError:  # pragma: Python 2
         # python 3
         return (dict(zip(dicts, x)) for x in itertools.product(*dicts.values()))
 
