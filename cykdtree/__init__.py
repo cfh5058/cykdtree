@@ -1,6 +1,9 @@
 import sys
 import os
 PY_MAJOR_VERSION = sys.version_info[0]
+COVFLAG = bool(os.environ.get('CYKDTREE_COVERAGE', None) == 'True')
+PRFFLAG = bool(os.environ.get('CYKDTREE_PROFILE', None) == 'True')
+PROF_ENABLED = (COVFLAG or PRFFLAG)
 from cykdtree.kdtree import PyKDTree, PyNode
 try:
     from cykdtree.parallel_kdtree import PyParallelKDTree, spawn_parallel, parallel_worker
@@ -9,9 +12,6 @@ except ImportError:  # pragma: w/o MPI
     PyParallelKDTree = spawn_parallel = parallel_worker = None
     FLAG_MULTIPROC = False
 from cykdtree import tests, plot
-COVFLAG = bool(os.environ.get('CYKDTREE_COVERAGE', None) == 'True')
-PRFFLAG = bool(os.environ.get('CYKDTREE_PROFILE', None) == 'True')
-PROF_ENABLED = (COVFLAG or PRFFLAG)
 
 
 def get_include():

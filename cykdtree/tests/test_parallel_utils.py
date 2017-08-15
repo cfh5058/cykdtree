@@ -80,6 +80,13 @@ def MPITest(Nproc, **pargs):  # pragma: w/ MPI
     return dec
 
 
+def test_MPITest():  # pragma: w/ MPI
+    def func_raise():
+        raise Exception
+    f = MPITest(3)(func_raise)
+    assert_raises(Exception, f)
+
+
 @MPITest(Nproc, ndim=(2,3))
 def test_parallel_distribute(ndim=2):  # pragma: w/ MPI
     comm = MPI.COMM_WORLD
