@@ -161,7 +161,7 @@ def test_neighbors(periodic = False):  # pragma: w/ MPI
                 for i in range(len(leaf.right_neighbors[d])):
                     assert(right_neighbors[d][leaf.id][i] ==
                            leaf.right_neighbors[d][i])
-        except:
+        except:  # pragma: no cover
             time.sleep(rank)
             print(out_str)
             raise
