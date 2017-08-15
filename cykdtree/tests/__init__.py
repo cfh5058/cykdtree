@@ -331,16 +331,14 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
         pr = cProfile.Profile()
         t0 = time.time()
         pr.enable()
-        if nproc > 1:
-            print(kwargs['profile'])
     out = make_tree(pts, nproc=nproc, left_edge=left_edge, right_edge=right_edge,
                     periodic=periodic, leafsize=leafsize, **kwargs)
     if profile:
         pr.disable()
         t1 = time.time()
         ps = pstats.Stats(pr)
-        ps.add(kwargs['profile'])
         if os.path.isfile(kwargs['profile']):
+            ps.add(kwargs['profile'])
             os.remove(kwargs['profile'])
         if isinstance(profile, str):
             ps.dump_stats(profile)
