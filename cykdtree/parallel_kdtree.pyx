@@ -18,8 +18,8 @@ from cykdtree.parallel_utils import call_subprocess
 from cykdtree import PROF_ENABLED
 
 
-def spawn_parallel(np.ndarray[np.float64_t, ndim=2] pts, int nproc,
-                   with_coverage=False, **kwargs):
+#np.ndarray[np.float64_t, ndim=2] pts, int nproc,
+def spawn_parallel(pts, nproc, with_coverage=False, **kwargs):
     r"""Spawn processes to construct a tree in parallel and then
     return the consolidated tree to the calling process.
 
@@ -91,9 +91,9 @@ def parallel_worker(finput, foutput):
         pts, kwargs = load_from_pickle(finput)
     else:
         pts, kwargs = (None, {})
-    profile = kwargs.pop("profile", False)
-    if not PROF_ENABLED:
-        profile = False
+    profile = False
+    if PROF_ENABLED:
+        profile = kwargs.pop("profile", False)
     suppress_final_output = kwargs.pop("suppress_final_output", False)
     suppress_final_output = comm.bcast(suppress_final_output, root=0)
     # Build & consolidate tree
@@ -350,8 +350,10 @@ cdef class PyParallelKDTree:
         cdef vector[uint32_t] vout = self._ptree.get_neighbor_ids(&pos[0]);
         cdef pybool found = (vout.size() != 0)
         cdef object all_found = comm.allgather(found)
-        if sum(all_found) != 1:
+        if sum(all_found) == 0:
             raise ValueError("Position is not within the kdtree root node.")
+        # elif sum(all_found) > 1:
+        #     raise ValueError("Position is on more than one process.")
         if found:
             out = np.empty(vout.size(), 'uint32')
             for i in xrange(vout.size()):
@@ -384,8 +386,8 @@ cdef class PyParallelKDTree:
         cdef object all_found = comm.allgather(found)
         if sum(all_found) == 0:
             raise ValueError("Position is not within the kdtree root node.")
-        elif sum(all_found) > 1:
-            raise ValueError("Position is on more than one process.")
+        # elif sum(all_found) > 1:
+        #     raise ValueError("Position is on more than one process.")
         if found:
             out = self.leaves[leafnode.leafid]
         return out

@@ -47,9 +47,6 @@ cdef class PyNode:
         self.left_neighbors = None
         self.right_neighbors = None
 
-    def __init__(self):
-        pass
-
     def init_node(self, PyNode solf):
         r"""Initialize this node using data from another node.
 

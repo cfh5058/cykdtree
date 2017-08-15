@@ -116,7 +116,7 @@ def test_search(periodic=False, ndim=2):  # pragma: w/ MPI
             out.neighbors
 
 
-@MPITest(3, periodic=(False, True), ndim=(2,))
+@MPITest(3)
 def test_search_errors(periodic=False, ndim=2):  # pragma: w/ MPI
     pts, le, re, ls = make_points(100, ndim)
     tree = cykdtree.PyParallelKDTree(pts, le, re, leafsize=ls,
@@ -181,6 +181,15 @@ def test_get_neighbor_ids(periodic=False, ndim=2):  # pragma: w/ MPI
     for v in vals:
         pos = v*np.ones(ndim, 'float')
         tree.get_neighbor_ids(pos)
+
+@MPITest(3)
+def test_get_neighbor_ids_errors(periodic=False, ndim=2):  # pragma: w/ MPI
+    pts, le, re, ls = make_points(100, ndim)
+    tree = cykdtree.PyParallelKDTree(pts, le, re, leafsize=ls,
+                                     periodic=periodic)
+    if not periodic:
+        assert_raises(ValueError, tree.get_neighbor_ids, np.ones(ndim, 'double'))
+    assert_raises(AssertionError, tree.get_neighbor_ids, np.zeros(ndim+1, 'double'))
 
 
 @MPITest(Nproc, periodic=(False, True), ndim=(2,3))
