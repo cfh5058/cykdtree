@@ -9,7 +9,8 @@ omit =
 	*/site-packages/nose/*
 	*/unittest2/*
 	*.pxd
-        cykdtree/tests/__main__.py
+        ./cykdtree/tests/__main__.py
+	*/__main__.py
 
 [report]
 sort = Cover
