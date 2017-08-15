@@ -92,7 +92,7 @@ else:
 
 
 # Set coverage options in .coveragerc
-if COVFLAG:
+if True: #COVFLAG:
     from coverage.config import HandyConfigParser
     covrc = '.coveragerc'
     cp = HandyConfigParser("")
