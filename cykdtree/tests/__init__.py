@@ -11,6 +11,12 @@ except ImportError:  # pragma: w/o MPI
 import numpy as np
 import itertools
 import os
+try:
+    from Cython.Compiler.Options import directive_defaults
+except ImportError:
+    # Update to cython
+    from Cython.Compiler.Options import get_directive_defaults
+    directive_defaults = get_directive_defaults()
 
 
 def assert_less_equal(x, y):
@@ -324,7 +330,7 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
     # Set keywords for multiprocessing version
     if nproc > 1:  # pragma: w/ MPI
         kwargs['suppress_final_output'] = suppress_final_output
-        if profile:
+        if profile and directive_defaults['profile']:
             kwargs['profile'] = '%s_mpi_profile.dat' % unique_str
     # Run
     if profile:
@@ -339,7 +345,6 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
         ps = pstats.Stats(pr)
         if nproc > 1:  # pragma: w/ MPI
             if os.path.isfile(kwargs['profile']):
-                print(kwargs['profile'])
                 ps.add(kwargs['profile'])
                 os.remove(kwargs['profile'])
         if isinstance(profile, str):

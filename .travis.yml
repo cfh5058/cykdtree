@@ -17,11 +17,11 @@ env:
 matrix:
   include:
     - python: 2.7
-      env: MPI=mpich CYKDTREE_PROFILE=True
+      env: MPI=mpich
     - python: 3.5
       env: MPI=mpich
-    # - python: 2.7
-    #   env: MPI=openmpi
+    - python: 2.7
+      env: MPI=openmpi
     - python: 2.7
       env: CYKDTREE_COVERAGE=True MPI=mpich
     - python: 2.7

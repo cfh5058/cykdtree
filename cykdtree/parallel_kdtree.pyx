@@ -19,6 +19,12 @@ from libcpp cimport bool as cbool
 from cpython cimport bool as pybool
 from libc.stdint cimport uint32_t, uint64_t, int32_t, int64_t
 from cykdtree.parallel_utils import call_subprocess
+try:
+    from Cython.Compiler.Options import directive_defaults
+except ImportError:
+    # Update to cython
+    from Cython.Compiler.Options import get_directive_defaults
+    directive_defaults = get_directive_defaults()
 
 
 def spawn_parallel(np.ndarray[np.float64_t, ndim=2] pts, int nproc,
@@ -104,6 +110,8 @@ def parallel_worker(finput, foutput):
     else:
         pts, kwargs = (None, {})
     profile = kwargs.pop("profile", False)
+    if not directive_defaults['profile']:
+        profile = False
     suppress_final_output = kwargs.pop("suppress_final_output", False)
     suppress_final_output = comm.bcast(suppress_final_output, root=0)
     # Build & consolidate tree
@@ -119,11 +127,7 @@ def parallel_worker(finput, foutput):
         if isinstance(profile, str):
             pr.dump_stats(profile)
         else:
-            pr.print_stats()
-            print(dir(pr))
-            ps = pstats.Stats(pr)
-            ps.sort_stats('time').print_stats(25)
-            # pstats.Stats(pr).sort_stats('time').print_stats(25)
+            pstats.Stats(pr).sort_stats('time').print_stats(25)
     # Save output
     if not suppress_final_output and (rank == 0):
         tree.save(foutput)
