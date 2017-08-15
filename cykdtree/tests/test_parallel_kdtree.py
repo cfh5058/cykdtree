@@ -13,7 +13,7 @@ Nproc = (3,4,5)
 
 
 def test_spawn_parallel(nproc=3, npts=20, ndim=2, periodic=False,
-                        leafsize=3):
+                        leafsize=3):  # pragma: w/ MPI
     if MPI is None:  # pragma: w/o MPI
         return
     else: # pragma: w/ MPI
@@ -32,14 +32,14 @@ def test_spawn_parallel(nproc=3, npts=20, ndim=2, periodic=False,
 
 
 @MPITest(Nproc, periodic=(False, True), ndim=(2,3))
-def test_PyParallelKDTree(periodic=False, ndim=2):
+def test_PyParallelKDTree(periodic=False, ndim=2):  # pragma: w/ MPI
     pts, le, re, ls = make_points(20, ndim, leafsize=3)
     Tpara = cykdtree.PyParallelKDTree(pts, le, re, leafsize=ls,
                                       periodic=periodic)
 
 
 @MPITest(3)
-def test_PyParallelKDTree_errors(ndim=2):
+def test_PyParallelKDTree_errors(ndim=2):  # pragma: w/ MPI
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
@@ -57,7 +57,7 @@ def test_PyParallelKDTree_errors(ndim=2):
 
 
 @MPITest(3)
-def test_PyParallelKDTree_defaults(ndim=2):
+def test_PyParallelKDTree_defaults(ndim=2):  # pragma: w/ MPI
     pts, le, re, ls = make_points(20, ndim, leafsize=3)
     cykdtree.PyParallelKDTree(pts, leafsize=ls)
     cykdtree.PyParallelKDTree(pts, nleaves=4)
@@ -66,7 +66,7 @@ def test_PyParallelKDTree_defaults(ndim=2):
 
 
 @MPITest(3)
-def test_PyParallelKDTree_properties():
+def test_PyParallelKDTree_properties():  # pragma: w/ MPI
     pts, le, re, ls = make_points(100, 2)
     T = cykdtree.PyParallelKDTree(pts, le, re, leafsize=ls)
     prop_list = ['local_npts', 'inter_npts', 'idx', 'inter_idx',
@@ -78,7 +78,7 @@ def test_PyParallelKDTree_properties():
 
 
 @MPITest(Nproc, periodic=(False, True), ndim=(2,3))
-def test_consolidate(periodic=False, ndim=2):
+def test_consolidate(periodic=False, ndim=2):  # pragma: w/ MPI
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
@@ -99,7 +99,7 @@ def test_consolidate(periodic=False, ndim=2):
 
 
 @MPITest(Nproc, periodic=(False, True), ndim=(2,3))
-def test_search(periodic=False, ndim=2):
+def test_search(periodic=False, ndim=2):  # pragma: w/ MPI
     pts, le, re, ls = make_points(100, ndim)
     tree = cykdtree.PyParallelKDTree(pts, le, re, leafsize=ls,
                                      periodic=periodic)
@@ -115,7 +115,7 @@ def test_search(periodic=False, ndim=2):
 
 
 @MPITest(3, periodic=(False, True), ndim=(2,))
-def test_search_errors(periodic=False, ndim=2):
+def test_search_errors(periodic=False, ndim=2):  # pragma: w/ MPI
     pts, le, re, ls = make_points(100, ndim)
     tree = cykdtree.PyParallelKDTree(pts, le, re, leafsize=ls,
                                      periodic=periodic)
@@ -125,7 +125,7 @@ def test_search_errors(periodic=False, ndim=2):
 
 
 @MPITest(Nproc, periodic=(False, True))
-def test_neighbors(periodic = False):
+def test_neighbors(periodic = False):  # pragma: w/ MPI
     comm = MPI.COMM_WORLD
     size = comm.Get_size()
     rank = comm.Get_rank()
@@ -166,7 +166,7 @@ def test_neighbors(periodic = False):
 
 
 @MPITest(3, periodic=(False,))
-def test_get_neighbor_ids(periodic=False, ndim=2):
+def test_get_neighbor_ids(periodic=False, ndim=2):  # pragma: w/ MPI
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     pts, le, re, ls = make_points(100, ndim)
@@ -182,7 +182,7 @@ def test_get_neighbor_ids(periodic=False, ndim=2):
 
 
 @MPITest(Nproc, periodic=(False, True), ndim=(2,3))
-def test_consolidate_edges(periodic=False, ndim=2):
+def test_consolidate_edges(periodic=False, ndim=2):  # pragma: w/ MPI
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
@@ -202,7 +202,7 @@ def test_consolidate_edges(periodic=False, ndim=2):
 
 
 @MPITest(Nproc, periodic=(False, True), ndim=(2,3))
-def test_consolidate_process_bounds(periodic=False, ndim=2):
+def test_consolidate_process_bounds(periodic=False, ndim=2):  # pragma: w/ MPI
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
@@ -216,7 +216,7 @@ def test_consolidate_process_bounds(periodic=False, ndim=2):
     np.testing.assert_allclose(REpara[rank,:], Tpara.right_edge)
 
 
-def time_tree_construction(Ntime, LStime, ndim=2):
+def time_tree_construction(Ntime, LStime, ndim=2):  # pragma: w/ MPI
     if MPI is None:  # pragma: w/o MPI
         return
     else:  # pragma: w/ MPI
@@ -227,7 +227,7 @@ def time_tree_construction(Ntime, LStime, ndim=2):
         print("{} {}D points, leafsize {}: took {} s".format(Ntime, ndim, LStime, t1-t0))
 
 
-def time_neighbor_search(Ntime, LStime, ndim=2):
+def time_neighbor_search(Ntime, LStime, ndim=2):  # pragma: w/ MPI
     if MPI is None:  # pragma: w/o MPI
         return
     else:  # pragma: w/ MPI

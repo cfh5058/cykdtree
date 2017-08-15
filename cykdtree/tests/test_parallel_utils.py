@@ -13,14 +13,15 @@ Nproc = (3,4,5)
 Nproc_single = 3
 
 
-def test_call_subprocess():
-    if MPI is None:
-        return  # pragma: w/o MPI 
-    parallel_utils.call_subprocess(1, assert_less_equal, [1, 5], {},
-                                   with_coverage=True)
+def test_call_subprocess():  # pragma: w/ MPI 
+    if MPI is None:  # pragma: w/o MPI 
+        return
+    else:  # pragma: w/ MPI
+        parallel_utils.call_subprocess(1, assert_less_equal, [1, 5], {},
+                                       with_coverage=True)
 
 
-def MPITest(Nproc, **pargs):
+def MPITest(Nproc, **pargs):  # pragma: w/ MPI
     r"""Decorator generator for tests that must be run with MPI.
 
     Args:
@@ -33,8 +34,8 @@ def MPITest(Nproc, **pargs):
         func: Decorator function that calls the pass function with MPI.
 
     """
-    if MPI is None:
-        return lambda x: None  # pragma: w/o MPI
+    if MPI is None:  # pragma: w/o MPI
+        return lambda x: None
 
     if not isinstance(Nproc, (tuple, list)):
         Nproc = (Nproc,)
@@ -80,7 +81,7 @@ def MPITest(Nproc, **pargs):
 
 
 @MPITest(Nproc, ndim=(2,3))
-def test_parallel_distribute(ndim=2):
+def test_parallel_distribute(ndim=2):  # pragma: w/ MPI
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
@@ -100,7 +101,7 @@ def test_parallel_distribute(ndim=2):
 
 
 @MPITest(Nproc, ndim=(2,3), npts=(10, 11, 50, 51))
-def test_parallel_pivot_value(ndim=2, npts=50):
+def test_parallel_pivot_value(ndim=2, npts=50):  # pragma: w/ MPI
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
@@ -125,7 +126,7 @@ def test_parallel_pivot_value(ndim=2, npts=50):
 
 
 @MPITest(Nproc, ndim=(2,3), npts=(10, 11, 50, 51))
-def test_parallel_select(ndim=2, npts=50):
+def test_parallel_select(ndim=2, npts=50):  # pragma: w/ MPI
     total_npts = npts
     pivot_dim = ndim-1
     comm = MPI.COMM_WORLD
@@ -158,7 +159,7 @@ def test_parallel_select(ndim=2, npts=50):
 
 
 @MPITest(Nproc, ndim=(2,3), npts=(10, 11, 50, 51))
-def test_parallel_split(ndim=2, npts=50):
+def test_parallel_split(ndim=2, npts=50):  # pragma: w/ MPI
     total_npts = npts
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
@@ -194,7 +195,7 @@ def test_parallel_split(ndim=2, npts=50):
 
 
 @MPITest(Nproc, ndim=(2,3), npts=(10, 11, 50, 51), split_left=(None, False, True))
-def test_redistribute_split(ndim=2, npts=50, split_left=None):
+def test_redistribute_split(ndim=2, npts=50, split_left=None):  # pragma: w/ MPI
     total_npts = npts
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
@@ -237,7 +238,7 @@ def test_redistribute_split(ndim=2, npts=50, split_left=None):
 
 
 @MPITest(Nproc_single, ndim=(2,), npts=(10,))
-def test_redistribute_split_errors(ndim=2, npts=50):
+def test_redistribute_split_errors(ndim=2, npts=50):  # pragma: w/ MPI
     total_npts = npts
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
@@ -254,7 +255,7 @@ def test_redistribute_split_errors(ndim=2, npts=50):
                                          maxs = np.max(pts, axis=0))
 
 
-def test_calc_split_rank():
+def test_calc_split_rank():  # pragma: w/ MPI
     if MPI is None:
         return  # pragma: w/o MPI
 
@@ -270,7 +271,7 @@ def test_calc_split_rank():
 
 
 @MPITest(Nproc)
-def test_calc_rounds():
+def test_calc_rounds():  # pragma: w/ MPI
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
@@ -295,7 +296,7 @@ def test_calc_rounds():
 
 
 @MPITest(Nproc, ndim=(2,3), npts=(10, 11, 50, 51))
-def test_kdtree_parallel_distribute(ndim=2, npts=50):
+def test_kdtree_parallel_distribute(ndim=2, npts=50):  # pragma: w/ MPI
     total_npts = npts
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
