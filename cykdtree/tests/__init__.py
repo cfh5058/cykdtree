@@ -171,11 +171,11 @@ def make_points_neighbors(periodic=False):
     ndim = 2
     npts = 50
     leafsize = 10
-    if MPI is not None:
+    if MPI is not None:  # pragma: w/ MPI
         comm = MPI.COMM_WORLD
         size = comm.Get_size()
         rank = comm.Get_rank()
-    else:
+    else:  # pragma: w/o MPI
         size = 0
         rank = 0
     if (size == 0) or (rank == 0):
@@ -183,7 +183,7 @@ def make_points_neighbors(periodic=False):
         pts = np.random.rand(npts, ndim).astype('float64')
         left_edge = np.zeros(ndim, 'float64')
         right_edge = np.ones(ndim, 'float64')
-    else:
+    else:  # pragma: w/ MPI
         pts = None
         left_edge = None
         right_edge = None
@@ -243,11 +243,11 @@ def make_points(npts, ndim, leafsize=10, distrib='rand', seed=100):
     ndim = int(ndim)
     npts = int(npts)
     leafsize = int(leafsize)
-    if MPI is not None:
+    if MPI is not None:  # pragma: w/ MPI
         comm = MPI.COMM_WORLD
         size = comm.Get_size()
         rank = comm.Get_rank()
-    else:
+    else:  # pragma: w/o MPI
         size = 0
         rank = 0
     np.random.seed(seed)
@@ -276,7 +276,7 @@ def make_points(npts, ndim, leafsize=10, distrib='rand', seed=100):
                 np.clip(pts, LE, RE)
             else:
                 raise ValueError("Invalid 'distrib': {}".format(distrib))
-    else:
+    else:  # pragma: w/ MPI
         pts = None
         left_edge = None
         right_edge = None
