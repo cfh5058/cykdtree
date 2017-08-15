@@ -331,7 +331,8 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
         pr = cProfile.Profile()
         t0 = time.time()
         pr.enable()
-        print(kwargs['profile'])
+        if nproc > 1:
+            print(kwargs['profile'])
     out = make_tree(pts, nproc=nproc, left_edge=left_edge, right_edge=right_edge,
                     periodic=periodic, leafsize=leafsize, **kwargs)
     if profile:
