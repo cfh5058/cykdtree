@@ -18,8 +18,9 @@ from cykdtree.parallel_utils import call_subprocess
 from cykdtree import PROF_ENABLED
 
 
-#np.ndarray[np.float64_t, ndim=2] pts, int nproc,
-def spawn_parallel(pts, nproc, with_coverage=False, **kwargs):
+def spawn_parallel(#np.ndarray[np.float64_t, ndim=2] pts, int nproc,
+                   pts, nproc, 
+                   with_coverage=False, **kwargs):
     r"""Spawn processes to construct a tree in parallel and then
     return the consolidated tree to the calling process.
 
@@ -91,9 +92,12 @@ def parallel_worker(finput, foutput):
         pts, kwargs = load_from_pickle(finput)
     else:
         pts, kwargs = (None, {})
-    profile = False
-    if PROF_ENABLED:
-        profile = kwargs.pop("profile", False)
+    # profile = False
+    # if PROF_ENABLED:
+    #     profile = kwargs.pop("profile", False)
+    profile = kwargs.pop("profile", False)
+    if not PROF_ENABLED:
+        profile = False
     suppress_final_output = kwargs.pop("suppress_final_output", False)
     suppress_final_output = comm.bcast(suppress_final_output, root=0)
     # Build & consolidate tree
