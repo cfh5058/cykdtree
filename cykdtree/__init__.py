@@ -9,6 +9,9 @@ except ImportError:  # pragma: w/o MPI
     PyParallelKDTree = spawn_parallel = parallel_worker = None
     FLAG_MULTIPROC = False
 from cykdtree import tests, plot
+COVFLAG = bool(os.environ.get('CYKDTREE_COVERAGE', None) == 'True')
+PRFFLAG = bool(os.environ.get('CYKDTREE_PROFILE', None) == 'True')
+PROF_ENABLED = (COVFLAG or PRFFLAG)
 
 
 def get_include():

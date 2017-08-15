@@ -6,13 +6,8 @@ try:
     from mpi4py import MPI
 except ImportError:  # pragma: w/o MPI
     MPI = None
-try:
-    from Cython.Compiler.Options import directive_defaults
-except ImportError:
-    # Update to cython
-    from Cython.Compiler.Options import get_directive_defaults
-    directive_defaults = get_directive_defaults()
 import cykdtree
+from cykdtree import PROF_ENABLED
 from cykdtree.tests import parametrize, make_points, make_points_neighbors
 from cykdtree.tests.test_parallel_utils import MPITest
 Nproc = (3,4,5)
@@ -33,7 +28,7 @@ def test_spawn_parallel(nproc=3, npts=20, ndim=2, periodic=False,
                                         left_edge=le, right_edge=re,
                                         periodic=periodic, with_coverage=True,
                                         profile=profile)
-        if directive_defaults['profile']:
+        if PROF_ENABLED:
             assert(os.path.isfile(profile))
             os.remove(profile)
 

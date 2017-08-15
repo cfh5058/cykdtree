@@ -11,12 +11,7 @@ except ImportError:  # pragma: w/o MPI
 import numpy as np
 import itertools
 import os
-try:
-    from Cython.Compiler.Options import directive_defaults
-except ImportError:
-    # Update to cython
-    from Cython.Compiler.Options import get_directive_defaults
-    directive_defaults = get_directive_defaults()
+from cykdtree import PROF_ENABLED
 
 
 def assert_less_equal(x, y):
@@ -74,11 +69,10 @@ def iter_dict(dicts):
         tuple: Dictionaries with combined keyword values from the input.
 
     """
-    try:  # pragma: Python 3
+    try:  # pragma: Python 2
         return (dict(itertools.izip(dicts, x)) for x in
                 itertools.product(*dicts.itervalues()))
-    except AttributeError:  # pragma: Python 2
-        # python 3
+    except AttributeError:  # pragma: Python 3
         return (dict(zip(dicts, x)) for x in itertools.product(*dicts.values()))
 
 
@@ -330,7 +324,7 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
     # Set keywords for multiprocessing version
     if nproc > 1:  # pragma: w/ MPI
         kwargs['suppress_final_output'] = suppress_final_output
-        if profile and directive_defaults['profile']:
+        if profile and PROF_ENABLED:
             kwargs['profile'] = '%s_mpi_profile.dat' % unique_str
     # Run
     if profile:
@@ -363,6 +357,7 @@ def test_run_test(npts=10, ndim=2, nproc=2, profile='temp_file.dat'):
     if MPI is None:  # pragma: w/o MPI
         assert_raises(RuntimeError, run_test, npts, ndim, nproc=nproc)
         nproc = 1
+    run_test(npts, ndim, nproc=nproc, profile=True)
     run_test(npts, ndim, nproc=nproc, profile=profile)
     assert(os.path.isfile(profile))
     os.remove(profile)
