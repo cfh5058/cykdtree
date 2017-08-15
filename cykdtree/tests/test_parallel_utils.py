@@ -12,13 +12,19 @@ from cykdtree import utils
 Nproc = (3,4,5)
 Nproc_single = 3
 
+def assert_with_keywords(v1, v2=0, v3=""):
+    assert_less_equal(v1, v2)
 
 def test_call_subprocess():  # pragma: w/ MPI 
     if MPI is None:  # pragma: w/o MPI 
         return
     else:  # pragma: w/ MPI
-        parallel_utils.call_subprocess(1, assert_less_equal, [1, 5], {},
+        parallel_utils.call_subprocess(1, assert_with_keywords,
+                                       [1], dict(v2=5, v3="test"),
                                        with_coverage=True)
+        assert_raises(Exception, parallel_utils.call_subprocess, 1,
+                      assert_with_keywords, [1], dict(v2=0, v3="test"))
+                      
 
 
 def MPITest(Nproc, **pargs):  # pragma: w/ MPI
@@ -46,7 +52,7 @@ def MPITest(Nproc, **pargs):  # pragma: w/ MPI
         size = comm.Get_size()
         rank = comm.Get_rank()
 
-        print(size, Nproc, size in Nproc)
+        # print(size, Nproc, size in Nproc)
 
         # First do setup
         if (size not in Nproc):
