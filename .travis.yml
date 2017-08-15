@@ -17,7 +17,7 @@ env:
 matrix:
   include:
     - python: 2.7
-      env: MPI=mpich
+      env: MPI=mpich CYKDTREE_PROFILE=True
     - python: 3.5
       env: MPI=mpich
     # - python: 2.7
