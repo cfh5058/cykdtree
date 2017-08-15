@@ -119,6 +119,7 @@ def parallel_worker(finput, foutput):
         if isinstance(profile, str):
             pr.dump_stats(profile)
         else:
+            print(dir(pr))
             ps = pstats.Stats(pr)
             ps.sort_stats('time').print_stats(25)
             # pstats.Stats(pr).sort_stats('time').print_stats(25)
