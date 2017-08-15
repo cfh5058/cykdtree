@@ -344,9 +344,10 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
         t1 = time.time()
         ps = pstats.Stats(pr)
         if nproc > 1:  # pragma: w/ MPI
-            if os.path.isfile(kwargs['profile']):
-                ps.add(kwargs['profile'])
-                os.remove(kwargs['profile'])
+            para_prof = kwargs.get('profile', None)
+            if isinstance(para_prof, str) and os.path.isfile(para_prof):
+                ps.add(para_prof)
+                os.remove(para_prof)
         if isinstance(profile, str):
             ps.dump_stats(profile)
             print("Stats saved to {}".format(profile))
