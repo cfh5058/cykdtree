@@ -46,7 +46,7 @@ def MPITest(Nproc, **pargs):  # pragma: w/ MPI
         size = comm.Get_size()
         rank = comm.Get_rank()
 
-        # print(size, Nproc, size in Nproc)
+        print(size, Nproc, size in Nproc)
 
         # First do setup
         if (size not in Nproc):
@@ -83,7 +83,7 @@ def MPITest(Nproc, **pargs):  # pragma: w/ MPI
 def test_MPITest():  # pragma: w/ MPI
     def func_raise():
         raise Exception
-    f = MPITest(3)(func_raise)
+    f = MPITest(1)(func_raise)
     assert_raises(Exception, f)
 
 
