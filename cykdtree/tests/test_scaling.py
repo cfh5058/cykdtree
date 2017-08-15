@@ -31,6 +31,9 @@ def test_strong_scaling():
     if MPI is None: # pragma: w/o MPI
         assert_raises(RuntimeError, scaling.strong_scaling,
                       npart=100, nproc_list=[1,2])
+        f = scaling.strong_scaling(npart=100, nproc_list=[1], ndim_list=[2])
+        assert(os.path.isfile(f))
+        os.remove(f)
     else:  # pragma: w/ MPI
         f = scaling.strong_scaling(npart=100, nproc_list=[1,2], ndim_list=[2],
                                    periodic=True, overwrite=True,
@@ -43,6 +46,9 @@ def test_weak_scaling():
     if MPI is None: # pragma: w/o MPI
         assert_raises(RuntimeError, scaling.weak_scaling,
                       npart=100, nproc_list=[1,2])
+        f = scaling.weak_scaling(npart=100, nproc_list=[1], ndim_list=[2])
+        assert(os.path.isfile(f))
+        os.remove(f)
     else:  # pragma: w/ MPI
         f = scaling.weak_scaling(npart=100, nproc_list=[1,2], ndim_list=[2],
                                  periodic=True, overwrite=True,
