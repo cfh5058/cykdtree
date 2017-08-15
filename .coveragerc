@@ -9,6 +9,7 @@ omit =
 	*/site-packages/nose/*
 	*/unittest2/*
 	*.pxd
+        tests/__main__.py
 
 [report]
 sort = Cover
@@ -26,4 +27,3 @@ exclude_lines =
 exclude_lines = 
 	^\s*def (\S+)\s*\(.*\):
 	^\s*cdef (\S+.*?) \s*(\S+)\s*\(.*\):
-
