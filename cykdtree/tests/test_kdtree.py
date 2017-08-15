@@ -129,7 +129,7 @@ def test_neighbors(periodic=False):
                 for i in range(len(leaf.right_neighbors[d])):
                     assert(right_neighbors[d][leaf.id][i] ==
                            leaf.right_neighbors[d][i])
-        except:
+        except:  # pragma: no cover
             for leaf in tree.leaves:
                 print(leaf.id, leaf.left_edge, leaf.right_edge)
             print(out_str)
@@ -176,6 +176,10 @@ def time_tree_construction(Ntime, LStime, ndim=2):
     print("{} {}D points, leafsize {}: took {} s".format(Ntime, ndim, LStime, t1-t0))
 
 
+def test_time_tree_construction():
+    time_tree_construction(10, 2)
+
+
 def time_neighbor_search(Ntime, LStime, ndim=2):
     pts, le, re, ls = make_points(Ntime, ndim, leafsize=LStime)
     tree = cykdtree.PyKDTree(pts, le, re, leafsize=LStime)
@@ -183,6 +187,11 @@ def time_neighbor_search(Ntime, LStime, ndim=2):
     tree.get_neighbor_ids(0.5*np.ones(tree.ndim, 'double'))
     t1 = time.time()
     print("{} {}D points, leafsize {}: took {} s".format(Ntime, ndim, LStime, t1-t0))
+
+
+def test_time_neighbor_search():
+    time_neighbor_search(10, 2)
+
 
 def test_save_load():
     for periodic in (True, False):
