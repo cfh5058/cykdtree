@@ -60,6 +60,7 @@ def test_PyParallelKDTree_errors(ndim=2):
 def test_PyParallelKDTree_defaults(ndim=2):
     pts, le, re, ls = make_points(20, ndim, leafsize=3)
     cykdtree.PyParallelKDTree(pts, leafsize=ls)
+    cykdtree.PyParallelKDTree(pts, nleaves=4)
     cykdtree.PyParallelKDTree(pts, leafsize=ls, periodic=np.ones(ndim, 'bool'))
     cykdtree.PyParallelKDTree(pts, leafsize=ls, use_sliding_midpoint=True)
 

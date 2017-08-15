@@ -61,7 +61,6 @@ def test_PyKDTree_errors():
 def test_PyKDTree_defaults():
     cykdtree.PyKDTree()
     pts, le, re, ls = make_points(10, 2)
-    cykdtree.PyKDTree(pts=pts, nleaves=2)
     cykdtree.PyKDTree(pts, leafsize=ls)
     cykdtree.PyKDTree(pts, leafsize=ls, periodic=np.ones(2, 'bool'))
     cykdtree.PyKDTree(pts, nleaves=4)
