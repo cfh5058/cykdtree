@@ -17,7 +17,7 @@ def assert_with_keywords(v1, v2=0, v3=""):
 
 def test_call_subprocess():  # pragma: w/ MPI 
     if MPI is None:  # pragma: w/o MPI 
-        return
+        assert_with_keywords(0, v2=1)
     else:  # pragma: w/ MPI
         parallel_utils.call_subprocess(1, assert_with_keywords,
                                        [1], dict(v2=5, v3="test"),
