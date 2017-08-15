@@ -470,6 +470,7 @@ cdef class PyParallelKDTree:
         """
         cdef np.ndarray[np.float64_t, ndim=2] all_lbounds
         cdef np.ndarray[np.float64_t, ndim=2] all_rbounds
+        print('in pyx', self.size, self.ndim)
         all_lbounds = np.empty((self.size, self.ndim), 'float64')
         all_rbounds = np.empty((self.size, self.ndim), 'float64')
         self._ptree.consolidate_process_bounds(&all_lbounds[0,0],
