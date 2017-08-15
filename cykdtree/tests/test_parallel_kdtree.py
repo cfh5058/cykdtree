@@ -167,7 +167,7 @@ def test_neighbors(periodic = False):  # pragma: w/ MPI
             raise
 
 
-@MPITest(3, periodic=(False,))
+@MPITest(3, periodic=(False, True))
 def test_get_neighbor_ids(periodic=False, ndim=2):  # pragma: w/ MPI
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
