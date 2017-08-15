@@ -19,6 +19,14 @@ def test_stats_run():
         scaling.stats_run(100, 2, 2)
 
 
+def test_time_run():
+    scaling.time_run(100, 1, 2)
+    if MPI is None: # pragma: w/o MPI
+        assert_raises(RuntimeError, scaling.time_run, 10, 2, 2)
+    else: # pragma: w/ MPI
+        scaling.time_run(100, 2, 2)
+
+
 def test_strong_scaling():
     if MPI is None: # pragma: w/o MPI
         assert_raises(RuntimeError, scaling.strong_scaling,

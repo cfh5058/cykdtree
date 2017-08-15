@@ -75,15 +75,16 @@ def time_run(npart, nproc, ndim, nrep=1, periodic=False, leafsize=10,
     """
     if MPI is None and nproc > 1:  # pragma: w/o MPI
         raise RuntimeError("MPI could not be imported for parallel run.")
-    times = np.empty(nrep, 'float')
-    for i in range(nrep):
-        t1 = time.time()
-        run_test(npart, ndim, nproc=nproc,
-                 periodic=periodic, leafsize=leafsize,
-                 suppress_final_output=suppress_final_output)
-        t2 = time.time()
-        times[i] = t2 - t1
-    return np.mean(times), np.std(times)
+    else: # pragma: w/ MPI
+        times = np.empty(nrep, 'float')
+        for i in range(nrep):
+            t1 = time.time()
+            run_test(npart, ndim, nproc=nproc,
+                     periodic=periodic, leafsize=leafsize,
+                     suppress_final_output=suppress_final_output)
+            t2 = time.time()
+            times[i] = t2 - t1
+        return np.mean(times), np.std(times)
 
 
 def strong_scaling(npart=1e6, nrep=1, periodic=False, leafsize=10, 
