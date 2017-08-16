@@ -6,8 +6,10 @@ import copy
 import numpy
 import os
 import sys
+import warnings
 
 PY_MAJOR_VERSION = sys.version_info[0]
+PY2 = (PY_MAJOR_VERSION == 2)
 
 # Check for ReadTheDocs/coverage flags
 RTDFLAG = bool(os.environ.get('READTHEDOCS', None) == 'True')
@@ -74,6 +76,10 @@ if RTDFLAG:
     ext_options['extra_compile_args'].append('-DREADTHEDOCS')
     compile_parallel = False
 else:
+    if PY2:
+        mpi_errors = ImportError
+    else:
+        mpi_errors = (ImportError, FileNotFoundError)
     try:
         import mpi4py
         _mpi4py_dir = os.path.dirname(mpi4py.__file__)
@@ -87,7 +93,7 @@ else:
             mpi_compile_args, mpi_link_args = ret
             ext_options_mpi['extra_compile_args'] += mpi_compile_args
             ext_options_mpi['extra_link_args'] += mpi_link_args
-    except (ImportError, FileNotFoundError):
+    except mpi_errors:
         compile_parallel = False
         warnings.warn("Could not locate valid mpi installation." +
                       "Parallel tools will be disabled.")
