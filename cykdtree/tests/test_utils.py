@@ -34,16 +34,6 @@ def test_argmax_pts_dim_negative(N=10, ndim=2):
     out = utils.py_argmax_pts_dim(pts, idx, d, -9, -5)
 
 
-# def test_argmax_pts_dim_errors(N=10, ndim=2):
-#     d = ndim-1
-#     pts = np.random.rand(N, ndim).astype('float64')
-#     idx = np.argsort(pts[:, d]).astype('uint64')
-#     assert_raises(Exception, utils.py_argmax_pts_dim,
-#                   pts, idx, d, N+1, 0)
-#     assert_raises(Exception, utils.py_argmax_pts_dim,
-#                   pts, idx, d, 0, N+1)
-
-
 @parametrize(N=(10), ndim=(2, 3), Lidx=(0,5), Ridx=(5,9))
 def test_argmin_pts_dim(N=10, ndim=2, Lidx=0, Ridx=9):
     d = ndim-1
@@ -58,16 +48,6 @@ def test_argmin_pts_dim_negative(N=10, ndim=2):
     pts = np.random.rand(N, ndim).astype('float64')
     idx = np.argsort(pts[:, d]).astype('uint64')
     out = utils.py_argmin_pts_dim(pts, idx, d, -9, -5)
-
-
-# def test_argmin_pts_dim_errors(N=10, ndim=2):
-#     d = ndim-1
-#     pts = np.random.rand(N, ndim).astype('float64')
-#     idx = np.argsort(pts[:, d]).astype('uint64')
-#     assert_raises(Exception, utils.py_argmin_pts_dim,
-#                   pts, idx, d, N+1, 0)
-#     assert_raises(Exception, utils.py_argmin_pts_dim,
-#                   pts, idx, d, 0, N+1)
 
 
 @parametrize(N=(0, 10, 11), ndim=(2, 3))

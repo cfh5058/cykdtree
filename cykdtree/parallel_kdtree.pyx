@@ -303,43 +303,46 @@ cdef class PyParallelKDTree:
     def local_npts(self):
         cdef uint64_t out = self._ptree.local_npts
         return out
+
     @property
     def inter_npts(self):
         cdef uint64_t out = self._ptree.inter_npts
         return out
-    # @property
-    # def pts(self):
-    #     cdef np.float64_t[:,:] view
-    #     view = <np.float64_t[:self.local_npts,:self.ndim]> self._ptree.all_pts
-    #     return np.asarray(view)
+
     @property
     def idx(self):
         cdef np.uint64_t[:] view
         view = <np.uint64_t[:self.local_npts]> self._ptree.all_idx
         return np.asarray(view)
+
     @property
     def inter_idx(self):
         cdef np.uint64_t[:] view
         view = <np.uint64_t[:self.inter_npts]> self._ptree.all_idx
         return np.asarray(view)
+
     @property
     def left_edge(self):
         cdef np.float64_t[:] view
         view = <np.float64_t[:self.ndim]> self._ptree.local_domain_left_edge
         return np.asarray(view)
+
     @property
     def right_edge(self):
         cdef np.float64_t[:] view
         view = <np.float64_t[:self.ndim]> self._ptree.local_domain_right_edge
         return np.asarray(view)
+
     @property
     def domain_width(self):
         return self.right_edge - self.left_edge
+
     @property
     def periodic_left(self):
         cdef cbool[:] view
         view = <cbool[:self.ndim]> self._ptree.local_periodic_left
         return np.asarray(view)
+
     @property
     def periodic_right(self):
         cdef cbool[:] view
@@ -356,8 +359,8 @@ cdef class PyParallelKDTree:
         cdef object all_found = comm.allgather(found)
         if sum(all_found) == 0:
             raise ValueError("Position is not within the kdtree root node.")
-        # elif sum(all_found) > 1:
-        #     raise ValueError("Position is on more than one process.")
+        elif sum(all_found) > 1:  # pragma: debug
+            raise ValueError("Position is on more than one process.")
         if found:
             out = np.empty(vout.size(), 'uint32')
             for i in xrange(vout.size()):
@@ -385,13 +388,12 @@ cdef class PyParallelKDTree:
         cdef object out = None
         assert(<uint32_t>len(pos) == self.ndim)
         cdef Node* leafnode = self._ptree.search(&pos[0])
-        # cdef PyNode out = PyNode()
         cdef pybool found = (leafnode != NULL)
         cdef object all_found = comm.allgather(found)
         if sum(all_found) == 0:
             raise ValueError("Position is not within the kdtree root node.")
-        # elif sum(all_found) > 1:
-        #     raise ValueError("Position is on more than one process.")
+        elif sum(all_found) > 1:  # pragma: debug
+            raise ValueError("Position is on more than one process.")
         if found:
             out = self.leaves[leafnode.leafid]
         return out
@@ -416,7 +418,6 @@ cdef class PyParallelKDTree:
     cdef object _consolidate(self):
         cdef KDTree *stree = NULL
         cdef PyKDTree out = PyKDTree()
-        # cdef ParallelKDTree *ptree = self._ptree
         stree = self._ptree.consolidate_tree()
         if self.rank == 0:
             out._init_tree(stree)

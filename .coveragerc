@@ -9,22 +9,19 @@ omit =
 	*/site-packages/nose/*
 	*/unittest2/*
 	*.pxd
-        ./cykdtree/tests/__main__.py
+	./cykdtree/tests/__main__.py
 	*/__main__.py
 
 [report]
 sort = Cover
 ignore_errors = True
 exclude_lines = 
-	# Have to re-enable the standard pragma
 	pragma: no cover
-	# General things
 	def __repr__
 	if 0:
 	if False:
 	if __name__ == .__main__.:
 
 [Cython.Coverage]
-exclude_lines = 
-	^\s*def (\S+)\s*\(.*\):
-	^\s*cdef (\S+.*?) \s*(\S+)\s*\(.*\):
+ignore_defs = True
+ignore_cdefs = True

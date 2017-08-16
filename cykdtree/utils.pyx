@@ -72,16 +72,10 @@ def py_argmax_pts_dim(np.ndarray[np.float64_t, ndim=2] pos,
     cdef uint64_t Ridx = <uint64_t>(n-1)
     if (Lidx0 < 0):
         Lidx = <uint64_t>(n + Lidx0)
-    # elif Lidx0 >= n:
-    #     raise Exception("Left index (%d) exceeds size of positions array (%d)." 
-    #                         % (Lidx0, n))
     else:
         Lidx = <uint64_t>Lidx0
     if (Ridx0 < 0):
         Ridx = <uint64_t>(n + Ridx0)
-    # elif Ridx0 >= n:
-    #     raise Exception("Right index (%d) exceeds size of positions array (%d)."
-    #                         % (Ridx0, n))
     else:
         Ridx = <uint64_t>Ridx0
     cdef np.uint64_t cout = Lidx

@@ -93,26 +93,32 @@ cdef class PyNode:
     def periodic_left(self):
         cdef cbool[:] view = <cbool[:self.ndim]> self._node.periodic_left
         return np.asarray(view)
+
     @property
     def periodic_right(self):
         cdef cbool[:] view = <cbool[:self.ndim]> self._node.periodic_right
         return np.asarray(view)
+
     @property
     def left_edge(self):
         cdef np.float64_t[:] view = <np.float64_t[:self.ndim]> self._node.left_edge
         return np.asarray(view)
+
     @property
     def right_edge(self):
         cdef np.float64_t[:] view = <np.float64_t[:self.ndim]> self._node.right_edge
         return np.asarray(view)
+
     @property
     def domain_width(self):
         cdef np.float64_t[:] view = <np.float64_t[:self.ndim]> self._domain_width
         return np.asarray(view)
+
     @property
     def slice(self):
         """slice: Slice of kdtree indices contained by this node."""
         return slice(self.start_idx, self.stop_idx)
+
     @property
     def neighbors(self):
         """list of int: Indices of all neighboring leaves including this
@@ -329,14 +335,17 @@ cdef class PyKDTree:
     def left_edge(self):
         cdef np.float64_t[:] view = <np.float64_t[:self.ndim]> self._tree.domain_left_edge
         return np.asarray(view)
+
     @property
     def right_edge(self):
         cdef np.float64_t[:] view = <np.float64_t[:self.ndim]> self._tree.domain_right_edge
         return np.asarray(view)
+
     @property
     def domain_width(self):
         cdef np.float64_t[:] view = <np.float64_t[:self.ndim]> self._tree.domain_width
         return np.asarray(view)
+
     @property
     def periodic(self):
         cdef cbool[:] view = <cbool[:self.ndim]> self._tree.periodic
@@ -346,6 +355,7 @@ cdef class PyKDTree:
         for i in range(self.ndim):
             out[i] = view[i]
         return out
+
     @property
     def idx(self):
         return np.asarray(self._idx)

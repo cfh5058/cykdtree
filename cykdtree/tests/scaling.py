@@ -95,7 +95,7 @@ def time_run(npart, nproc, ndim, nrep=1, periodic=False, leafsize=10,
 
 
 def strong_scaling(npart=1e6, nrep=1, periodic=False, leafsize=10, 
-                   nproc_list = [1, 2, 4, 8], #, 16],
+                   nproc_list = [1, 2, 4, 8],
                    ndim_list = [2, 3, 4],
                    overwrite=True, suppress_final_output=False):
     r"""Plot the scaling with number of processors for a particular function.
@@ -158,7 +158,7 @@ def strong_scaling(npart=1e6, nrep=1, periodic=False, leafsize=10,
 
 
 def weak_scaling(npart=1e4, nrep=1, periodic=False, leafsize=10,
-                 nproc_list = [1, 2, 4, 8], #, 16],
+                 nproc_list = [1, 2, 4, 8],
                  ndim_list = [2, 3, 4],
                  overwrite=True, suppress_final_output=False):
     r"""Plot the scaling with number of processors with a constant number of
