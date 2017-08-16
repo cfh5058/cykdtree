@@ -50,7 +50,7 @@ before_install:
       export PATH=/usr/local/opt/ccache/libexec:$PATH
       if [[ "$MPI" != "none" ]]; then brew install $MPI; fi
     fi
-    sh ci/travis-ci/install-mpi.sh
+    sh ci/travis-ci/install-mpi.sh $MPI
 
 install:
   - |
