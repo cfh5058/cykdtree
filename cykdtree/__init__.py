@@ -11,7 +11,6 @@ except ImportError:  # pragma: w/o MPI
     PyParallelKDTree = spawn_parallel = parallel_worker = None
     FLAG_MULTIPROC = False
 from cykdtree import tests, plot
-print('PROF_ENABLED',PROF_ENABLED)
 
 
 def get_include():

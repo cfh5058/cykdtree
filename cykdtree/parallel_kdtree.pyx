@@ -90,6 +90,7 @@ def parallel_worker(finput, foutput):
         pts, kwargs = load_from_pickle(finput)
     else:
         pts, kwargs = (None, {})
+    print('PROF_ENABLED',PROF_ENABLED)
     # profile = False
     # if PROF_ENABLED:
     #     profile = kwargs.pop("profile", False)

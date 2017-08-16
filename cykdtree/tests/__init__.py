@@ -325,6 +325,7 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
     # Set keywords for multiprocessing version
     if nproc > 1:  # pragma: w/ MPI
         kwargs['suppress_final_output'] = suppress_final_output
+        print('PROF_ENABLED: run_test',PROF_ENABLED)
         if profile and PROF_ENABLED:
             kwargs['profile'] = '%s_mpi_profile.dat' % unique_str
     # Run
