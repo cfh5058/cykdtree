@@ -17,6 +17,7 @@ sort = Cover
 ignore_errors = True
 exclude_lines = 
 	pragma: no cover
+	pragma: debug
 	def __repr__
 	if 0:
 	if False:
