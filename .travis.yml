@@ -48,11 +48,9 @@ before_install:
       brew update
       brew install ccache
       export PATH=/usr/local/opt/ccache/libexec:$PATH
-      if [[ "$MPI" != "none" ]]; then 
-        brew install $MPI
-        sh ci/travis-ci/install-mpi.sh
-      fi
+      if [[ "$MPI" != "none" ]]; then brew install $MPI; fi
     fi
+    sh ci/travis-ci/install-mpi.sh
 
 install:
   - |
