@@ -92,24 +92,39 @@ else:
 
 
 # Set coverage options in .coveragerc
-if True: #COVFLAG:
+cov_installed = False
+try:
     from coverage.config import HandyConfigParser
+    cov_installed = True
+except ImportError:
+    pass
+if cov_installed:
+    # Read options
     covrc = '.coveragerc'
     cp = HandyConfigParser("")
     cp.read(covrc)
+    # Exclude rules for all files
     if not cp.has_section('report'):
         cp.add_section('report')
     if cp.has_option('report', 'exclude_lines'):
-        excl_list = cp.get('report', 'exclude_lines')
+        excl_list = cp.getlist('report', 'exclude_lines')
     else:
-        excl_list = ""
+        excl_list = []
+    # Exclude rules for Cython files
+    if not cp.has_section('Cython.Coverage'):
+        cp.add_section('Cython.Coverage')
+    if cp.has_option('Cython.Coverage', 'exclude_lines'):
+        cy_excl_list = cp.getlist('Cython.Coverage', 'exclude_lines')
+    else:
+        cy_excl_list = []
+    # Funcs to add/rm rules
     def add_excl_rule(excl_list, new_rule):
         if new_rule not in excl_list:
-            excl_list += "\n" + new_rule
+            excl_list.append(new_rule)
         return excl_list
     def rm_excl_rule(excl_list, new_rule):
         if new_rule in excl_list:
-            excl_list = excl_list.replace("\n" + new_rule, "")
+            excl_list.remove(new_rule)
         return excl_list
     # Python version
     verlist = [2, 3]
@@ -126,16 +141,13 @@ if True: #COVFLAG:
     else:
         excl_list = add_excl_rule(excl_list, 'pragma: w/ MPI')
         excl_list = rm_excl_rule(excl_list, 'pragma: w/o MPI')
-    # Add and write
-    if not cp.has_section('Cython.Coverage'):
-        cp.add_section('Cython.Coverage')
-    cp.set('report', 'exclude_lines', excl_list) 
-    if cp.has_option('Cython.Coverage', 'exclude_lines'):
-        cy_excl_list = cp.get('Cython.Coverage', 'exclude_lines')
-        cy_excl_list += excl_list
-    else:
-        cy_excl_list = excl_list
-    cp.set('Cython.Coverage', 'exclude_lines', cy_excl_list)
+    # Add new rules
+    for r in excl_list:
+        if r not in cy_excl_list:
+            cy_excl_list.append(r)
+    cp.set('report', 'exclude_lines', '\n'+'\n'.join(excl_list))
+    cp.set('Cython.Coverage', 'exclude_lines', '\n'+'\n'.join(cy_excl_list))
+    # Write
     with open(covrc, 'w') as fd:
         cp.write(fd)
 

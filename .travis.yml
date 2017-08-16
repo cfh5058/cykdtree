@@ -44,12 +44,14 @@ before_install:
       python -m virtualenv venv
       source venv/bin/activate
       export PATH=/usr/lib/ccache:$PATH
-      if [[ "$MPI" != "none" ]]; then sh install-mpi.sh $MPI; fi
     else
       brew update
       brew install ccache
       export PATH=/usr/local/opt/ccache/libexec:$PATH
-      if [[ "$MPI" != "none" ]]; then brew install $MPI; fi
+      if [[ "$MPI" != "none" ]]; then 
+        brew install $MPI
+        sh ci/travis-ci/install-mpi.sh
+      fi
     fi
 
 install:
