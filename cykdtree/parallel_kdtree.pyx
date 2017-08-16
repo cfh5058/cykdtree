@@ -18,9 +18,7 @@ from cykdtree.parallel_utils import call_subprocess
 from cykdtree import PROF_ENABLED
 
 
-def spawn_parallel(#np.ndarray[np.float64_t, ndim=2] pts, int nproc,
-                   pts, nproc, 
-                   with_coverage=False, **kwargs):
+def spawn_parallel(pts, nproc, with_coverage=False, **kwargs):
     r"""Spawn processes to construct a tree in parallel and then
     return the consolidated tree to the calling process.
 
