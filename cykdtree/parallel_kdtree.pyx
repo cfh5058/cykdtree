@@ -90,13 +90,9 @@ def parallel_worker(finput, foutput):
         pts, kwargs = load_from_pickle(finput)
     else:
         pts, kwargs = (None, {})
-    print('PROF_ENABLED',PROF_ENABLED)
-    # profile = False
-    # if PROF_ENABLED:
-    #     profile = kwargs.pop("profile", False)
-    profile = kwargs.pop("profile", False)
-    if not PROF_ENABLED:
-        profile = False
+    profile = False
+    if PROF_ENABLED:
+        profile = kwargs.pop("profile", False)
     suppress_final_output = kwargs.pop("suppress_final_output", False)
     suppress_final_output = comm.bcast(suppress_final_output, root=0)
     # Build & consolidate tree
