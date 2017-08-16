@@ -19,7 +19,7 @@ matrix:
     - python: 2.7
       env: NUMPY=numpy==1.10.4 CYTHON=cython==0.24 MATPLOTLIB=matplotlib==1.5.3
     - python: 2.7
-      env: CYKDTREE_COVERAGE=True MPI=mpich
+      env: CYKDTREE_COVERAGE=True MPI=mpich CYTHON=https://github.com/langmm/cython/archive/coverage.tar.gz
     - python: 2.7
       env: MPI=openmpi
     - python: 3.4
