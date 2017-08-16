@@ -87,8 +87,10 @@ else:
             mpi_compile_args, mpi_link_args = ret
             ext_options_mpi['extra_compile_args'] += mpi_compile_args
             ext_options_mpi['extra_link_args'] += mpi_link_args
-    except ImportError:
+    except (ImportError, FileNotFoundError):
         compile_parallel = False
+        warnings.warn("Could not locate valid mpi installation." +
+                      "Parallel tools will be disabled.")
 
 
 # Set coverage options in .coveragerc
