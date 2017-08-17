@@ -8,7 +8,7 @@ import os
 from cykdtree.tests.tools import (assert_less_equal, make_points_neighbors,
                                   make_points, run_test)
 from cykdtree.tests.tools import parametrize
-#from cykdtree.tests.test_parallel_utils import MPITest
+# from cykdtree.tests.test_parallel_utils import MPITest
 Nproc = (1, 2)
 
 
@@ -20,7 +20,7 @@ def test_assert_less_equal():
     assert_raises(AssertionError, assert_less_equal, x, np.ones(3))
 
 
-#@MPITest(Nproc)
+# @MPITest(Nproc)
 def test_make_points_neighbors():
     make_points_neighbors()
 
