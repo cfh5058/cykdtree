@@ -9,7 +9,9 @@ except ImportError:  # pragma: w/o MPI
 from cykdtree.tests import assert_less_equal, parametrize
 from cykdtree import utils
 from cykdtree import PROF_ENABLED
-Nproc = (3, 4, 5)
+# Nproc = (3, 4, 5)
+# Nproc_single = 3
+Nproc = (3, 4)
 Nproc_single = 3
 
 
