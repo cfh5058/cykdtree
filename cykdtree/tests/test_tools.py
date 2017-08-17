@@ -6,7 +6,7 @@ except ImportError:  # pragma: w/o MPI
 import numpy as np
 import os
 from cykdtree.tests.tools import (assert_less_equal, make_points_neighbors,
-                                  make_points, run_test, parametrize)
+                                  make_points, run_test)
 from cykdtree.tests.test_parallel_utils import MPITest
 Nproc = (1, 2)
 
