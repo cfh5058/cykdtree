@@ -255,8 +255,6 @@ def py_parallel_split(np.ndarray[np.float64_t, ndim=2] pts, np.int64_t t,
     cdef uint64_t[:] idx = np.arange(npts).astype('uint64')
     cdef double *ptr_pts = <double*>malloc(npts*ndim*sizeof(double))
     cdef uint64_t *ptr_idx = <uint64_t*>malloc(npts*sizeof(uint64_t))
-    # cdef double *ptr_pts = NULL
-    # cdef uint64_t *ptr_idx = NULL
     cdef double *ptr_mins = NULL
     cdef double *ptr_maxs = NULL
     if (npts != 0) and (ndim != 0):
@@ -266,8 +264,6 @@ def py_parallel_split(np.ndarray[np.float64_t, ndim=2] pts, np.int64_t t,
             maxs = np.max(pts, axis=0)
         memcpy(ptr_pts, &pts[0,0], npts*ndim*sizeof(double))
         memcpy(ptr_idx, &idx[0], npts*sizeof(uint64_t))
-        # ptr_pts = &pts[0,0]
-        # ptr_idx = &idx[0]
         ptr_mins = &mins[0]
         ptr_maxs = &maxs[0]
     cdef int64_t q = 0
@@ -275,12 +271,16 @@ def py_parallel_split(np.ndarray[np.float64_t, ndim=2] pts, np.int64_t t,
     cdef uint32_t dsplit = parallel_split(ptr_pts, ptr_idx, Lidx, npts, ndim,
                                           ptr_mins, ptr_maxs, q, split_val)
     # Array version
-    cdef np.ndarray[np.uint64_t, ndim=1] new_idx
-    cdef np.uint64_t j
-    new_idx = np.empty((npts,), 'uint64')
-    for j in range(npts):
-        new_idx[j] = ptr_idx[j]
-    free(ptr_idx)
+    # cdef np.ndarray[np.uint64_t, ndim=1] new_idx
+    # cdef np.uint64_t j
+    # new_idx = np.empty((npts,), 'uint64')
+    # for j in range(npts):
+    #     new_idx[j] = ptr_idx[j]
+    # free(ptr_idx)
+    # free(ptr_pts)
+    # Memory view version
+    cdef np.uint64_t[:] new_idx
+    new_idx = <np.uint64_t[:npts]> ptr_idx
     free(ptr_pts)
     return q, dsplit, split_val, new_idx
 
