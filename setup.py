@@ -93,7 +93,6 @@ else:
             get_mpi_args('mpic++', '-compile_info', '-link_info') or  # MPICH
             get_mpi_args('mpic++', '--showme:compile', '--showme:link')  # OpenMPI
         )
-        print(ret)
         if ret is not None:
             mpi_compile_args, mpi_link_args = ret
             ext_options_mpi['extra_compile_args'] += mpi_compile_args
