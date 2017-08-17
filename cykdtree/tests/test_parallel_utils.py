@@ -8,6 +8,7 @@ except ImportError:  # pragma: w/o MPI
     parallel_utils = None
 from cykdtree.tests import assert_less_equal, parametrize
 from cykdtree import utils
+from cykdtree import PROF_ENABLED
 Nproc = (3, 4, 5)
 Nproc_single = 3
 
@@ -22,7 +23,7 @@ def test_call_subprocess():  # pragma: w/ MPI
     else:  # pragma: w/ MPI
         parallel_utils.call_subprocess(1, assert_with_keywords,
                                        [1], dict(v2=5, v3="test"),
-                                       with_coverage=True)
+                                       with_coverage=PROF_ENABLED)
         assert_raises(Exception, parallel_utils.call_subprocess, 1,
                       assert_with_keywords, [1], dict(v2=0, v3="test"))
                       
@@ -59,7 +60,7 @@ def MPITest(Nproc, **pargs):  # pragma: w/ MPI
             def wrapped(*args, **kwargs):
                 s = kwargs.pop('Nproc', 1)
                 parallel_utils.call_subprocess(s, func, args, kwargs,
-                                               with_coverage=True)
+                                               with_coverage=PROF_ENABLED)
 
             wrapped.__name__ = func.__name__
             return wrapped

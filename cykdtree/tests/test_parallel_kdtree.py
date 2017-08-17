@@ -18,15 +18,16 @@ def test_spawn_parallel(nproc=3, npts=20, ndim=2, periodic=False,
     if MPI is None:  # pragma: w/o MPI
         return
     else:  # pragma: w/ MPI
+        with_coverage = PROF_ENABLED
         pts, le, re, ls = make_points(npts, ndim, leafsize=leafsize)
         cykdtree.spawn_parallel(pts, nproc, leafsize=leafsize,
                                 left_edge=le, right_edge=re,
-                                periodic=periodic, with_coverage=True,
+                                periodic=periodic, with_coverage=with_coverage,
                                 profile=True)
         profile = 'temp_prof.txt'
         cykdtree.spawn_parallel(pts, nproc, leafsize=leafsize,
                                 left_edge=le, right_edge=re,
-                                periodic=periodic, with_coverage=True,
+                                periodic=periodic, with_coverage=with_coverage,
                                 profile=profile)
         if PROF_ENABLED:
             assert(os.path.isfile(profile))

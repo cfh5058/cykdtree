@@ -18,7 +18,7 @@ from cykdtree.parallel_utils import call_subprocess
 from cykdtree import PROF_ENABLED
 
 
-def spawn_parallel(pts, nproc, with_coverage=False, **kwargs):
+def spawn_parallel(pts, nproc, with_coverage=False, profile=False, **kwargs):
     r"""Spawn processes to construct a tree in parallel and then
     return the consolidated tree to the calling process.
 
@@ -46,6 +46,8 @@ def spawn_parallel(pts, nproc, with_coverage=False, **kwargs):
     unique_str = datetime.today().strftime("%Y%j%H%M%S")
     finput = 'input_%s.dat' % unique_str
     foutput = 'output_%s.dat' % unique_str
+    if PROF_ENABLED:
+        kwargs['profile'] = profile
     # Save input to a file
     dump_to_pickle(finput, [pts, kwargs])
     # Spawn in parallel
