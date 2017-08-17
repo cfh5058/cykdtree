@@ -6,8 +6,7 @@ except ImportError:  # pragma: w/o MPI
 import numpy as np
 import os
 from cykdtree.tests.tools import (assert_less_equal, make_points_neighbors,
-                                  make_points, run_test)
-from cykdtree.tests.test_parallel_utils import MPITest
+                                  make_points, run_test, parametrize)
 Nproc = (1, 2)
 
 
@@ -19,13 +18,12 @@ def test_assert_less_equal():
     assert_raises(AssertionError, assert_less_equal, x, np.ones(3))
 
 
-@MPITest(Nproc)
 def test_make_points_neighbors():
     make_points_neighbors()
 
 
-@MPITest(Nproc, npts=(-1, 10), ndim=(2, 3, 4),
-         distrib=('rand', 'uniform', 'normal'))
+@parametrize(Nproc, npts=(-1, 10), ndim=(2, 3, 4),
+             distrib=('rand', 'uniform', 'normal'))
 def test_make_points(npts=-1, ndim=2, distrib='rand'):
     make_points(npts, ndim, distrib=distrib)
 
