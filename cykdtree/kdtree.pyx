@@ -1,13 +1,12 @@
 import cython
 import numpy as np
 cimport numpy as np
-
 from libc.stdlib cimport malloc, free
 from libcpp cimport bool as cbool
 from cpython cimport bool as pybool
 from cython.operator cimport dereference
-
 from libc.stdint cimport uint32_t, uint64_t, int32_t, int64_t
+
 
 cdef class PyNode:
     r"""A container for leaf info.
@@ -494,9 +493,9 @@ cdef class PyKDTree:
         Args:
             filename (string): Name of the file to load the kdtree from
             data_version (int): A unique integer corresponding to the data 
-                                being loaded. If the loaded data_version does 
-                                not match the data_version supplied here then 
-                                an OSError is raised. Optional.
+                being loaded. If the loaded data_version does 
+                not match the data_version supplied here then 
+                an OSError is raised. Optional.
         
         Returns:
             :class:`cykdtree.PyKDTree`: A KDTree restored from the file
