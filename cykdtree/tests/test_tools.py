@@ -22,7 +22,7 @@ def test_make_points_neighbors():
     make_points_neighbors()
 
 
-@parametrize(Nproc, npts=(-1, 10), ndim=(2, 3, 4),
+@parametrize(npts=(-1, 10), ndim=(2, 3, 4),
              distrib=('rand', 'uniform', 'normal'))
 def test_make_points(npts=-1, ndim=2, distrib='rand'):
     make_points(npts, ndim, distrib=distrib)
