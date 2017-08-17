@@ -1,4 +1,5 @@
 # README #
+[![PyPI version](https://badge.fury.io/py/cykdtree.svg)](https://badge.fury.io/py/cykdtree)
 [![Build Status](https://travis-ci.org/cykdtree/cykdtree.svg?branch=master)](https://travis-ci.org/cykdtree/cykdtree)
 [![Coverage Status](https://coveralls.io/repos/github/cykdtree/cykdtree/badge.svg?branch=master)](https://coveralls.io/github/cykdtree/cykdtree?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/cykdtree/badge/?version=latest)](http://cykdtree.readthedocs.io/en/latest/?badge=latest)

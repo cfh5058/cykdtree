@@ -2,7 +2,7 @@ from datetime import datetime
 import cProfile
 import pstats
 import time
-from nose.tools import nottest, assert_raises
+from nose.tools import nottest
 try:
     from mpi4py import MPI
 except ImportError:  # pragma: w/o MPI
@@ -13,6 +13,7 @@ import os
 from cykdtree import PROF_ENABLED
 
 
+@nottest
 def assert_less_equal(x, y):
     r"""Assert that x is less than or equal to y. Either variable can be a
     scalar or numpy array. If they are both arrays, they must have the same
@@ -51,14 +52,6 @@ def assert_less_equal(x, y):
                                  (str(xshape), str(yshape)))
         raise AssertionError("Variables are not less-equal ordered\n\n" +
                              "x: %s\ny: %s\n" % (str(x), str(y)))
-
-
-def test_assert_less_equal():
-    x = np.zeros(5)
-    y = np.ones(5)
-    assert_less_equal(x, y)
-    assert_raises(AssertionError, assert_less_equal, y, x)
-    assert_raises(AssertionError, assert_less_equal, x, np.ones(3))
 
 
 def iter_dict(dicts):
@@ -206,10 +199,6 @@ def make_points_neighbors(periodic=False):
     return pts, left_edge, right_edge, leafsize, ln, rn
 
 
-def test_make_points_neighbors():
-    make_points_neighbors()
-
-
 @nottest
 def make_points(npts, ndim, leafsize=10, distrib='rand', seed=100):
     r"""Create test points.
@@ -284,16 +273,6 @@ def make_points(npts, ndim, leafsize=10, distrib='rand', seed=100):
     return pts, left_edge, right_edge, leafsize
 
 
-@parametrize(npts=(-1, 10), ndim=(2, 3, 4),
-             distrib=('rand', 'uniform', 'normal'))
-def test_make_points(npts=-1, ndim=2, distrib='rand'):
-    make_points(npts, ndim, distrib=distrib)
-
-
-def test_make_points_errors():
-    assert_raises(ValueError, make_points, 10, 2, distrib='bad value')
-
-
 @nottest
 def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
              profile=False, suppress_final_output=False, **kwargs):
@@ -353,13 +332,3 @@ def run_test(npts, ndim, nproc=0, distrib='rand', periodic=False, leafsize=10,
             ps.sort_stats(sort_key).print_stats(25)
             print("{} s according to 'time'".format(t1 - t0))
         return ps
-
-
-def test_run_test(npts=10, ndim=2, nproc=2, profile='temp_file.dat'):
-    if MPI is None:  # pragma: w/o MPI
-        assert_raises(RuntimeError, run_test, npts, ndim, nproc=nproc)
-        nproc = 1
-    run_test(npts, ndim, nproc=nproc, profile=True)
-    run_test(npts, ndim, nproc=nproc, profile=profile)
-    assert(os.path.isfile(profile))
-    os.remove(profile)
