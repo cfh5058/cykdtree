@@ -11,7 +11,7 @@ except ImportError:  # pragma: w/o MPI
     MPI = None
 
 
-def stats_run(npart, nproc, ndim, periodic=False, 
+def stats_run(npart, nproc, ndim, periodic=False,
               fname=None, overwrite=False,
               display=False, suppress_final_output=False):
     r"""Get timing stats using :package:`cProfile`.
@@ -27,7 +27,7 @@ def stats_run(npart, nproc, ndim, periodic=False,
             None and a filename is created based on the provided parameters.
         overwrite (bool, optional): If True, the existing file for this
             set of input parameters if overwritten. Defaults to False.
-        suppress_final_output (bool, optional): If True, the final output 
+        suppress_final_output (bool, optional): If True, the final output
             from spawned MPI processes is suppressed. This is mainly for
             timing purposes. Defaults to False.
         display (bool, optional): If True, display the profile results.
@@ -45,13 +45,13 @@ def stats_run(npart, nproc, ndim, periodic=False,
         perstr = "_periodic"
     if suppress_final_output:
         outstr = "_noout"
-    fname_provided = (fname != None)
+    fname_provided = (fname is not None)
     if not fname_provided:
         fname = 'stat_{}part_{}proc_{}dim{}{}.txt'.format(
             npart, nproc, ndim, perstr, outstr)
     if overwrite or not os.path.isfile(fname):
         cProfile.run(
-            "from cykdtree.tests import run_test; "+
+            "from cykdtree.tests import run_test; " +
             "run_test({}, {}, nproc={}, ".format(npart, ndim, nproc) +
             "periodic={}, ".format(periodic) +
             "suppress_final_output={})".format(suppress_final_output),
@@ -76,7 +76,7 @@ def time_run(npart, nproc, ndim, nrep=1, periodic=False, leafsize=10,
             periodic. Defaults to False.
         leafsize (int, optional): The maximum number of points that should be
             in any leaf in the tree. Defaults to 10.
-        suppress_final_output (bool, optional): If True, the final output 
+        suppress_final_output (bool, optional): If True, the final output
             from spawned MPI processes is suppressed. This is mainly for
             timing purposes. Defaults to False.
 
@@ -94,9 +94,9 @@ def time_run(npart, nproc, ndim, nrep=1, periodic=False, leafsize=10,
     return np.mean(times), np.std(times)
 
 
-def strong_scaling(npart=1e6, nrep=1, periodic=False, leafsize=10, 
-                   nproc_list = [1, 2, 4, 8],
-                   ndim_list = [2, 3, 4],
+def strong_scaling(npart=1e6, nrep=1, periodic=False, leafsize=10,
+                   nproc_list=[1, 2, 4, 8],
+                   ndim_list=[2, 3, 4],
                    overwrite=True, suppress_final_output=False):
     r"""Plot the scaling with number of processors for a particular function.
 
@@ -114,7 +114,7 @@ def strong_scaling(npart=1e6, nrep=1, periodic=False, leafsize=10,
             scaling for. Defaults to [2, 3, 4].
         overwrite (bool, optional): If True, the existing file for this
             set of input parameters if overwritten. Defaults to False.
-        suppress_final_output (bool, optional): If True, the final output 
+        suppress_final_output (bool, optional): If True, the final output
             from spawned MPI processes is suppressed. This is mainly for
             timing purposes. Defaults to False.
 
@@ -153,13 +153,13 @@ def strong_scaling(npart=1e6, nrep=1, periodic=False, leafsize=10,
     axs.set_ylabel("Time (s)")
     axs.legend()
     fig.savefig(fname_plot)
-    print('    '+fname_plot)
+    print('    ' + fname_plot)
     return fname_plot
 
 
 def weak_scaling(npart=1e4, nrep=1, periodic=False, leafsize=10,
-                 nproc_list = [1, 2, 4, 8],
-                 ndim_list = [2, 3, 4],
+                 nproc_list=[1, 2, 4, 8],
+                 ndim_list=[2, 3, 4],
                  overwrite=True, suppress_final_output=False):
     r"""Plot the scaling with number of processors with a constant number of
     particles per processor for a particular function.
@@ -179,7 +179,7 @@ def weak_scaling(npart=1e4, nrep=1, periodic=False, leafsize=10,
             scaling for. Defaults to [2, 3, 4].
         overwrite (bool, optional): If True, the existing file for this
             set of input parameters if overwritten. Defaults to False.
-        suppress_final_output (bool, optional): If True, the final output 
+        suppress_final_output (bool, optional): If True, the final output
             from spawned MPI processes is suppressed. This is mainly for
             timing purposes. Defaults to False.
 
@@ -204,7 +204,7 @@ def weak_scaling(npart=1e4, nrep=1, periodic=False, leafsize=10,
     for j, nproc in enumerate(nproc_list):
         for i, ndim in enumerate(ndim_list):
             times[j, i, 0], times[j, i, 1] = time_run(
-                npart*nproc, nproc, ndim, nrep=nrep,
+                npart * nproc, nproc, ndim, nrep=nrep,
                 periodic=periodic, leafsize=leafsize,
                 suppress_final_output=suppress_final_output)
     fig, axs = plt.subplots(1, 1)
@@ -217,5 +217,5 @@ def weak_scaling(npart=1e4, nrep=1, periodic=False, leafsize=10,
     axs.set_ylabel("Time (s)")
     axs.legend()
     fig.savefig(fname_plot)
-    print('    '+fname_plot)
+    print('    ' + fname_plot)
     return fname_plot

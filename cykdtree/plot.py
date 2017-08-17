@@ -1,7 +1,8 @@
 import numpy as np
 
+
 def _plot2D_root(seg, pts=None, txt=None, plotfile=None, point_kw={}, box_kw={},
-                 axs=None, subplot_kw={}, gridspec_kw={}, fig_kw={}, 
+                 axs=None, subplot_kw={}, gridspec_kw={}, fig_kw={},
                  save_kw={}, title=None, xlabel='x', ylabel='y', label_kw={}):
     r"""Plot a 2D kd-tree.
 
@@ -73,7 +74,6 @@ def _plot2D_root(seg, pts=None, txt=None, plotfile=None, point_kw={}, box_kw={},
 
     # Labels
     if txt is not None:
-        # label_kw.setdefault('axes', axs)
         label_kw.setdefault('verticalalignment', 'bottom')
         label_kw.setdefault('horizontalalignment', 'left')
         for t in txt:
@@ -85,7 +85,7 @@ def _plot2D_root(seg, pts=None, txt=None, plotfile=None, point_kw={}, box_kw={},
     # Save
     if plotfile is not None:
         plt.savefig(plotfile, **save_kw)
-    else: # pragma: no cover
+    else:  # pragma: no cover
         plt.show()
 
     # Return axes
@@ -131,6 +131,7 @@ def plot2D_serial(tree, pts=None, label_boxes=False, **kwargs):
     # Return axes
     return _plot2D_root(seg, pts=pts, txt=txt, **kwargs)
 
+
 def plot2D_parallel(tree, pts=None, label_boxes=False, label_procs=False,
                     **kwargs):
     r"""Plot a 2D kd-tree constructed in parallel.
@@ -147,7 +148,7 @@ def plot2D_parallel(tree, pts=None, label_boxes=False, label_procs=False,
         the rank 0 process.
 
     Returns:
-        :obj:`matplotlib.pyplot.Axes`: Axes containing the plot on the rank 0 
+        :obj:`matplotlib.pyplot.Axes`: Axes containing the plot on the rank 0
         process. None is returned on all other processes.
 
     """
@@ -161,7 +162,6 @@ def plot2D_parallel(tree, pts=None, label_boxes=False, label_procs=False,
     else:  # pragma: w/ MPI
 
         comm = MPI.COMM_WORLD
-        size = comm.Get_size()
         rank = comm.Get_rank()
 
         # Gather points & edges
@@ -193,7 +193,7 @@ def plot2D_parallel(tree, pts=None, label_boxes=False, label_procs=False,
             txt = []
             for leaf in tree.leaves.values():
                 t = ''
-                if label_boxes: 
+                if label_boxes:
                     t += '%d ' % leaf.id
                 if label_procs:
                     t += 'on %d ' % rank
@@ -207,5 +207,5 @@ def plot2D_parallel(tree, pts=None, label_boxes=False, label_procs=False,
         # Plot
         if rank == 0:
             return _plot2D_root(all_seg, pts=all_pts, txt=all_txt, **kwargs)
-        else: # pragma: no cover
+        else:  # pragma: no cover
             return None

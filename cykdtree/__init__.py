@@ -1,8 +1,4 @@
-import sys
-import os
-COVFLAG = bool(os.environ.get('CYKDTREE_COVERAGE', None) == 'True')
-PRFFLAG = bool(os.environ.get('CYKDTREE_PROFILE', None) == 'True')
-PROF_ENABLED = (COVFLAG or PRFFLAG)
+from cykdtree.constants import PROF_ENABLED
 from cykdtree.kdtree import PyKDTree, PyNode
 try:
     from cykdtree.parallel_kdtree import PyParallelKDTree, spawn_parallel, parallel_worker
@@ -11,6 +7,7 @@ except ImportError:  # pragma: w/o MPI
     PyParallelKDTree = spawn_parallel = parallel_worker = None
     FLAG_MULTIPROC = False
 from cykdtree import tests, plot
+import os
 
 
 def get_include():
@@ -65,4 +62,4 @@ def make_tree(pts, nproc=0, **kwargs):
 
 
 __all__ = ["PyKDTree", "PyNode", "tests", "get_include",
-           "PyParallelKDTree", "plot", "make_tree"]
+           "PyParallelKDTree", "plot", "make_tree", "PROF_ENABLED"]

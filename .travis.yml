@@ -61,10 +61,13 @@ install:
     pip install --upgrade wheel
     pip install --upgrade setuptools
     # Install dependencies
-    pip install $NUMPY $CYTHON $MATPLOTLIB nose coverage coveralls
+    pip install $NUMPY $CYTHON $MATPLOTLIB nose coverage coveralls flake8
     if [[ "$MPI" != "none" ]]; then pip install mpi4py; fi
     # install cykdtree
     pip install -e .
+
+before_script:
+  - flake8 .
 
 script:
   - |

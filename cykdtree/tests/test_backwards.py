@@ -2,6 +2,7 @@ import os
 from nose.tools import assert_raises, eq_
 from cykdtree import backwards
 
+
 def test_pickle():
     test_obj = {'test': 0}
     ftest = 'test_pickle.dat'

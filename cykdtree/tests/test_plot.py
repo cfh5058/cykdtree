@@ -33,5 +33,3 @@ def test_plot2D_parallel():
         plot2D_parallel(tree, pts, axs=axs, plotfile=fname_test)
         os.remove(fname_test)
         del axs
-
-

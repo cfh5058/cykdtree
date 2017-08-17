@@ -1,6 +1,8 @@
 # README #
 [![Build Status](https://travis-ci.org/cykdtree/cykdtree.svg?branch=master)](https://travis-ci.org/cykdtree/cykdtree)
 [![Coverage Status](https://coveralls.io/repos/github/cykdtree/cykdtree/badge.svg?branch=master)](https://coveralls.io/github/cykdtree/cykdtree?branch=master)
+[![PEP8](https://img.shields.io/badge/code%20style-pep8-orange.svg)](https://www.python.org/dev/peps/pep-0008/)
+
 
 cykdtree is a Python interface to a C++ implementation of a kd-tree using Cython. Documentation can be found [here](http://cykdtree.readthedocs.io/en/latest/).
 

@@ -14,7 +14,7 @@ def test_get_include():
 
 
 def test_make_tree(npts=100, ndim=2):
-    assert_raises(ValueError, cykdtree.make_tree, np.ones((3,3,3)))
+    assert_raises(ValueError, cykdtree.make_tree, np.ones((3, 3, 3)))
     pts, le, re, ls = make_points(npts, ndim)
     cykdtree.make_tree(pts, leafsize=ls, nproc=1)
     cykdtree.make_tree(pts, leafsize=ls, nproc=2)
@@ -39,6 +39,7 @@ def test_PyNode_properties():
         print(p)
         getattr(n, p)
         eval('n.%s' % p)
+
 
 def test_PyNode_repr():
     pts, le, re, ls = make_points(100, 2)
@@ -90,7 +91,7 @@ def test_assert_equal(strict_idx=False):
 def test_search(npts=100, ndim=2, periodic=False):
     pts, le, re, ls = make_points(npts, ndim)
     tree = cykdtree.PyKDTree(pts, le, re, leafsize=ls, periodic=periodic)
-    pos_list = [le, (le+re)/2.]
+    pos_list = [le, (le + re) / 2.]
     if periodic:
         pos_list.append(re)
     for pos in pos_list:
@@ -114,21 +115,21 @@ def test_neighbors(periodic=False):
         out_str = str(leaf.id)
         try:
             for d in range(tree.ndim):
-                out_str += '\nleft:  {} {} {}'.format(d, leaf.left_neighbors[d],
-                                               left_neighbors[d][leaf.id])
+                out_str += '\nleft:  {} {} {}'.format(
+                    d, leaf.left_neighbors[d], left_neighbors[d][leaf.id])
                 assert(len(left_neighbors[d][leaf.id]) ==
                        len(leaf.left_neighbors[d]))
                 for i in range(len(leaf.left_neighbors[d])):
                     assert(left_neighbors[d][leaf.id][i] ==
                            leaf.left_neighbors[d][i])
-                out_str += '\nright: {} {} {}'.format(d, leaf.right_neighbors[d],
-                                                right_neighbors[d][leaf.id])
+                out_str += '\nright: {} {} {}'.format(
+                    d, leaf.right_neighbors[d], right_neighbors[d][leaf.id])
                 assert(len(right_neighbors[d][leaf.id]) ==
                        len(leaf.right_neighbors[d]))
                 for i in range(len(leaf.right_neighbors[d])):
                     assert(right_neighbors[d][leaf.id][i] ==
                            leaf.right_neighbors[d][i])
-        except:  # pragma: no cover
+        except:  # pragma: debug
             for leaf in tree.leaves:
                 print(leaf.id, leaf.left_edge, leaf.right_edge)
             print(out_str)
@@ -150,11 +151,11 @@ def test_get_neighbor_ids_3(npts=100):
     tree.get_neighbor_ids_3(le)
 
 
-@parametrize(npts=100, ndim=(2,3), periodic=(False, True))
+@parametrize(npts=100, ndim=(2, 3), periodic=(False, True))
 def test_get_neighbor_ids(npts=100, ndim=2, periodic=False):
     pts, le, re, ls = make_points(npts, ndim)
     tree = cykdtree.PyKDTree(pts, le, re, leafsize=ls, periodic=periodic)
-    pos_list = [le, (le+re)/2.]
+    pos_list = [le, (le + re) / 2.]
     if periodic:
         pos_list.append(re)
     for pos in pos_list:
@@ -172,7 +173,8 @@ def time_tree_construction(Ntime, LStime, ndim=2):
     t0 = time.time()
     cykdtree.PyKDTree(pts, le, re, leafsize=LStime)
     t1 = time.time()
-    print("{} {}D points, leafsize {}: took {} s".format(Ntime, ndim, LStime, t1-t0))
+    print("{} {}D points, leafsize {}: took {} s".format(
+        Ntime, ndim, LStime, t1 - t0))
 
 
 def test_time_tree_construction():
@@ -183,9 +185,10 @@ def time_neighbor_search(Ntime, LStime, ndim=2):
     pts, le, re, ls = make_points(Ntime, ndim, leafsize=LStime)
     tree = cykdtree.PyKDTree(pts, le, re, leafsize=LStime)
     t0 = time.time()
-    tree.get_neighbor_ids(0.5*np.ones(tree.ndim, 'double'))
+    tree.get_neighbor_ids(0.5 * np.ones(tree.ndim, 'double'))
     t1 = time.time()
-    print("{} {}D points, leafsize {}: took {} s".format(Ntime, ndim, LStime, t1-t0))
+    print("{} {}D points, leafsize {}: took {} s".format(
+        Ntime, ndim, LStime, t1 - t0))
 
 
 def test_time_neighbor_search():
@@ -197,7 +200,7 @@ def test_save_load():
         for ndim in range(1, 5):
             pts, le, re, ls = make_points(100, ndim)
             tree = cykdtree.PyKDTree(pts, le, re, leafsize=ls,
-                                     periodic=periodic, data_version=ndim+12)
+                                     periodic=periodic, data_version=ndim + 12)
             with tempfile.NamedTemporaryFile() as tf:
                 tree.save(tf.name)
                 restore_tree = cykdtree.PyKDTree.from_file(tf.name)
