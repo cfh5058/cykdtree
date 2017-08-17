@@ -8,6 +8,7 @@ import os
 from cykdtree.tests.tools import (assert_less_equal, make_points_neighbors,
                                   make_points, run_test, parametrize)
 from cykdtree.tests.test_parallel_utils import MPITest
+Nproc = (1, 2)
 
 
 def test_assert_less_equal():
