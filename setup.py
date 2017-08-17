@@ -64,6 +64,10 @@ def get_mpi_args(mpi_executable, compile_argument, link_argument):
     link_args = call_subprocess([mpi_executable, link_argument])
     if compile_args is None:
         return None
+    if len(compile_args) > 1 and compile_args[0] == 'clang++':
+        compile_args = compile_args[1:]
+    if len(link_args) > 1 and link_args[0] == 'clang++':
+        link_args = link_args[1:]
     return compile_args, link_args
 
 
